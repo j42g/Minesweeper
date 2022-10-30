@@ -2,7 +2,6 @@ package Game;
 
 public class Tile {
 
-
     private final int x;
     private final int y;
     private boolean revealed;

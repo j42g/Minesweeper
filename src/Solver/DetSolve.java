@@ -32,11 +32,10 @@ public class DetSolve {
                 continue;
             }
             this.equationSolution();
-            /*this.equationSolution();
             if (!this.moveStack.empty()) {
                 this.moveHandle();
                 continue;
-            }*/
+            }
             // guess for now
             this.random();
             this.moveHandle();
@@ -167,12 +166,26 @@ public class DetSolve {
             return;
         }
         // most likely square to not have bomb
-        double[] p = new double[or.bitLength()];
+        int[] p = new int[xi.length];
+        int iMax = 0;
         for(int i = 0; i < p.length; i++){
-
+            for(BigInteger allFullSolution : this.allFullSolutions) {
+                if (!allFullSolution.testBit(i)) {
+                    p[i]++;
+                }
+            }
+            if(p[i] > p[iMax]){
+                iMax = i;
+            }
         }
-        // Util.printSolutions(this.allFullSolutions);
-
+        double iMaxP = p[iMax] / ( (double) this.allFullSolutions.size());
+        double randomP = 1 - this.grid.getRemainingBombCount() / ( (double) this.grid.getRemainingUnrevealedCount() );
+        if(iMaxP > randomP){
+            System.out.println(edgeUnrevealed.get(iMax).toString());
+            this.moveStack.push(new Move(edgeUnrevealed.get(iMax), false));
+        } else {
+            // TODO choose non edge tile at random
+        }
     }
 
     private void guessSolutions(int[][] a, int[] b, int[] xi, int aiIndex) { // guess solutions to equation aiIndex given x_i
@@ -201,8 +214,8 @@ public class DetSolve {
         int[] xiNew = Arrays.copyOf(xi, xi.length);
         for (int i = 0; i < Math.pow(2, indFreeVars.size()); i++) {
             num = i;
-            for (int j = 0; j < indFreeVars.size(); j++) {
-                xiNew[indFreeVars.get(j)] = num % 2;
+            for (Integer indFreeVar : indFreeVars) {
+                xiNew[indFreeVar] = num % 2;
                 num /= 2;
             }
             if (checkEquation(a[aiIndex], b[aiIndex], xiNew)) {
@@ -222,30 +235,6 @@ public class DetSolve {
             }
         }
         return sum == bi;
-    }
-
-    private void checkForEarlySolutionCode() {
-		/*int varJIndex = -1;
-		int varIIndex = -1;
-		for(int i = 0; i < a.length; i++) {
-			for(int j = 0; j < a[0].length; j++) {
-				if(a[i][j] == 1) { // found possible solution
-					if(varJIndex != -1) { // found twice so wrong, go to next
-						varJIndex = -1;
-						break;
-					}
-					varJIndex = j;
-					varIIndex = i;
-				}
-			}
-			if(varJIndex != -1) { // already found solution
-				break;
-			}
-		}
-		if(varJIndex != -1) { // found solution
-			System.out.println(edgeUnrevealed.get(varJIndex).toString());
-			return new int[] {edgeUnrevealed.get(varJIndex).getX(), edgeUnrevealed.get(varJIndex).getY(), b[varIIndex]};
-		}*/
     }
 
     private void random() {

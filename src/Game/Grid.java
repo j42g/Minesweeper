@@ -269,9 +269,17 @@ public class Grid {
         return this.height;
     }
 
+    public int getRemainingBombCount(){
+        return this.totalBombs - this.markedBombCount;
+    }
+
+    public int getRemainingUnrevealedCount(){
+        return this.totalSquares - this.revealedCount - this.markedBombCount;
+    }
+
     public void print() {
         System.out.println("Remaining Bombs:\t" + (this.totalBombs-this.markedBombCount) +
-                "\tUnrevealed Tiles:\t" + (this.totalSquares - this.revealedCount));
+                "\tUnrevealed Tiles:\t" + (this.totalSquares - this.revealedCount - this.markedBombCount));
 
         if (this.lost || this.won) {
             this.printRevealed();
@@ -282,7 +290,7 @@ public class Grid {
 
     public void printDebug(boolean see) {
         System.out.println("Remaining Bombs:\t" + (this.totalBombs-this.markedBombCount) +
-                "\tUnrevealed Tiles:\t" + (this.totalSquares - this.revealedCount));
+                "\tUnrevealed Tiles:\t" + (this.totalSquares - this.revealedCount - this.markedBombCount));
         if(see) {
             this.printRevealed();
         } else {
