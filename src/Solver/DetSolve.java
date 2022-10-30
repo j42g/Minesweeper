@@ -40,12 +40,6 @@ public class DetSolve {
             this.random();
             this.moveHandle();
         }
-        if(this.grid.isWon()){
-            System.out.println("WON");
-        } else {
-            System.out.println("LOST");
-            //this.grid.printDebug(false);
-        }
         return this.grid.isWon();
     }
 
@@ -138,10 +132,18 @@ public class DetSolve {
 
         }
         //Util.printEqns(a, b);
+        if(a.length == 0){ // WTF
+            return;
+        }
         int[] xi = new int[a[0].length];
         Arrays.fill(xi, -1); // invalidate everything
         this.allFullSolutions.clear();
         guessSolutions(a, b, xi, 0);
+        System.out.println(allFullSolutions.size());
+        if(allFullSolutions.size() > 1000000){
+            this.grid.print();
+            Util.printEqns(a, b);
+        }
         // AND and OR the Solutions
         BigInteger and = new BigInteger("0");
         BigInteger or = new BigInteger("0");
@@ -181,7 +183,6 @@ public class DetSolve {
         double iMaxP = p[iMax] / ( (double) this.allFullSolutions.size());
         double randomP = 1 - this.grid.getRemainingBombCount() / ( (double) this.grid.getRemainingUnrevealedCount() );
         if(iMaxP > randomP){
-            System.out.println(edgeUnrevealed.get(iMax).toString());
             this.moveStack.push(new Move(edgeUnrevealed.get(iMax), false));
         } else {
             // TODO choose non edge tile at random
@@ -275,7 +276,7 @@ public class DetSolve {
         while (!this.moveStack.empty()) {
             this.grid.move(this.moveStack.pop());
         }
-        this.grid.print();
+        // this.grid.print();
         //try { Thread.sleep(2000); } catch (Exception e) {}
     }
 }

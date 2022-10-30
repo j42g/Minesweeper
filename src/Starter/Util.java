@@ -1,12 +1,27 @@
 package Starter;
 
+import Game.Grid;
 import Game.Move;
+import Solver.DetSolve;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Stack;
 
 public class Util {
+
+    public static void test(int num){
+        Grid g;
+        int won = 0;
+        for(int i = 0; i < num; i++){
+            g = new Grid('h');
+            DetSolve s = new DetSolve(g);
+            if(s.start()){
+                won++;
+            }
+        }
+        System.out.println("Played:\t" + num + "\tWon:\t" + won + "\t%:\t" + ((100d * won) / num) );
+    }
 
     public static String toNum(int n, int space) {
         int numspace;
