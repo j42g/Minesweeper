@@ -1,5 +1,6 @@
 package Solver;
 
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,7 +116,6 @@ public class DetSolve {
                 }
             }
         }
-
         // generate equations
         int[][] a = new int[edgeRevealed.size()][edgeUnrevealed.size()];
         int[] b = new int[edgeRevealed.size()];
@@ -131,15 +131,35 @@ public class DetSolve {
             }
 
         }
-        //Util.printEqns(a, b);
-        if(a.length == 0){ // WTF
+        if(a.length == 0){ // check if empty
             return;
         }
+        // split into sections
+        ArrayList<ArrayList<Integer>> sections = new ArrayList<ArrayList<Integer>>();
+        ArrayList<Integer> section = new ArrayList<Integer>();
+
+        section.add(0);
+        for(int i = 0; i < a[section.get(0)].length; i++){
+            if(a[section.get(0)][i] != 1){
+                continue;
+            }
+            for(int j = 0; j < a.length - 1; j++){
+                if(a[j] == a[section.get(0)]){
+                    continue;
+                }
+                if(a[j][i] == 1 && !section.contains(j)){
+                    section.add(j);
+                    break;
+                }
+            }
+        }
+        Util.printEqns(a, b);
+        System.out.println(section.toString());
+
         int[] xi = new int[a[0].length];
         Arrays.fill(xi, -1); // invalidate everything
-        this.allFullSolutions.clear();
-        guessSolutions(a, b, xi, 0);
-        System.out.println(allFullSolutions.size());
+        this.allFullSolutions.clear(); // make empty if something is in there
+        guessSolutions(a, b, xi, 0); // full allFullSolutions
         if(allFullSolutions.size() > 1000000){
             this.grid.print();
             Util.printEqns(a, b);
@@ -187,6 +207,10 @@ public class DetSolve {
         } else {
             // TODO choose non edge tile at random
         }
+    }
+
+    private ArrayList<Integer> genSection(){
+        return null;
     }
 
     private void guessSolutions(int[][] a, int[] b, int[] xi, int aiIndex) { // guess solutions to equation aiIndex given x_i
