@@ -15,6 +15,7 @@ public class DetSolve {
     private final ArrayList<BigInteger> allCurrSolutions;
     private final Stack<Move> moveStack;
     private boolean allCornersOpen;
+    private int count = 0;
 
     public DetSolve(Grid g) {
         this.grid = g;
@@ -37,15 +38,20 @@ public class DetSolve {
                 this.moveHandle();
                 continue;
             }
+            this.count++;
+            if(this.count == 1000000){
+                this.grid.print();
+                System.out.println("KEKW");
+            }
             // guess for now
             this.random();
             this.moveHandle();
         }
-        if(this.grid.isWon()){
+        /*if(this.grid.isWon()){
             System.out.println("WON");
         } else {
             System.out.println("LOST");
-        }
+        }*/
         return this.grid.isWon();
     }
 
@@ -137,6 +143,11 @@ public class DetSolve {
 
         }
         if (a.length == 0) { // check if empty
+            if(this.grid.getRemainingBombCount() == this.grid.getRemainingUnrevealedCount()){ // all remaining tiles are bombs
+                this.handleWeirdCase(true);
+            } else {
+                    this.trulyRandom();
+            }
             return;
         }
         // split into sections for optimization
@@ -178,7 +189,7 @@ public class DetSolve {
                 currB[i] = b[sec.get(i)];
             }
 
-            this.guessSolutions2(currA, currB, currXi, 0);
+            this.guessSolutions(currA, currB, currXi, 0);
             OR = new BigInteger("0");
             AND = new BigInteger("0");
             for (BigInteger currSolution : this.allCurrSolutions) { // AND and OR
@@ -188,12 +199,12 @@ public class DetSolve {
             for (int i = 0; i < Math.max(AND.bitCount(), OR.bitCount()); i++) { // check if solution is found
                 if (AND.testBit(i)) {
                     this.moveStack.push(new Move(edgeUnrevealed.get(secVars.get(i)), true));
-                    System.out.println("PUSHED EQ: " + this.moveStack.peek());
+                    //System.out.println("PUSHED EQ: " + this.moveStack.peek());
                     foundSolution = true;
                 }
                 if (!OR.testBit(i)) {
                     this.moveStack.push(new Move(edgeUnrevealed.get(secVars.get(i)), false));
-                    System.out.println("PUSHED EQ: " + this.moveStack.peek());
+                    //System.out.println("PUSHED EQ: " + this.moveStack.peek());
                     foundSolution = true;
                 }
             }
@@ -211,7 +222,7 @@ public class DetSolve {
             }
         }
         if (!foundSolution && bestMove != null && this.allCornersOpen) { // have to guess
-            System.out.println("PUSHED GUESSED: " + bestMove);
+            //System.out.println("PUSHED GUESSED: " + bestMove);
             this.moveStack.push(bestMove);
         }
     }
@@ -251,7 +262,7 @@ public class DetSolve {
         return section;
     }
 
-    private void guessSolutions2(int[][] a, int[] b, int[] xi, int aiIndex) { // guess solutions to equation aiIndex given x_i
+    private void guessSolutions(int[][] a, int[] b, int[] xi, int aiIndex) { // guess solutions to equation aiIndex given x_i
         if (aiIndex == a.length) {
             BigInteger solution = new BigInteger("0");
             for(int i = 0; i < xi.length; i++){
@@ -263,7 +274,7 @@ public class DetSolve {
             return;
         }
         if (checkEquation(a[aiIndex], b[aiIndex], xi)) {
-            guessSolutions2(a, b, xi, aiIndex + 1);
+            guessSolutions(a, b, xi, aiIndex + 1);
             return;
         }
         // generate all Solutions given xi
@@ -282,7 +293,7 @@ public class DetSolve {
                 num /= 2;
             }
             if (checkEquation(a[aiIndex], b[aiIndex], xiNew)) {
-                guessSolutions2(a, b, xiNew, aiIndex + 1);
+                guessSolutions(a, b, xiNew, aiIndex + 1);
             }
         }
     }
@@ -298,6 +309,28 @@ public class DetSolve {
             }
         }
         return sum == bi;
+    }
+
+    private void handleWeirdCase(boolean areBombs){
+        for(int x = 0; x < this.grid.getWidth(); x++){
+            for(int y = 0; y < this.grid.getHeight(); y++){
+                if(!this.grid.getField()[x][y].isRevealed()){
+                    this.moveStack.push(new Move(x, y, areBombs));
+                }
+            }
+        }
+    }
+
+    private void trulyRandom(){
+        ArrayList<Tile> unrevealed = new ArrayList<Tile>();
+        for(int x = 0; x < this.grid.getWidth(); x++){
+            for(int y = 0; y < this.grid.getHeight(); y++){
+                if(!this.grid.getField()[x][y].isRevealed()){
+                    unrevealed.add(this.grid.getField()[x][y]);
+                }
+            }
+        }
+        this.moveStack.push(new Move(unrevealed.get((int)(Math.random()*unrevealed.size())), false));
     }
 
     private void random() {
@@ -325,10 +358,9 @@ public class DetSolve {
 
     private void moveHandle() {
         while (!this.moveStack.empty()) {
-            System.out.println("MOVED: " + this.moveStack.peek());
             this.grid.move(this.moveStack.pop());
         }
-        this.grid.print();
+        //this.grid.print();
         //try { Thread.sleep(2000); } catch (Exception e) {}
     }
 }

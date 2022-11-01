@@ -21,7 +21,7 @@ public class Util {
             }
             //System.out.println("Finished:" + (i+1));
         }
-        System.out.println("Played:\t" + num + "\tWon:\t" + won + "\t%:\t" + ((100d * won) / num) );
+        System.out.println("Played:\t" + num + ",\tWon:\t" + won + ",\t%:\t" + ((100d * won) / num) );
     }
 
     public static String toNum(int n, int space) {
