@@ -1,6 +1,5 @@
 package Solver;
 
-import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,7 +153,7 @@ public class DetSolve {
             }
         }
         Util.printEqns(a, b);
-        System.out.println(section.toString());
+        System.out.println(section);
 
         int[] xi = new int[a[0].length];
         Arrays.fill(xi, -1); // invalidate everything
@@ -209,8 +208,27 @@ public class DetSolve {
         }
     }
 
-    private ArrayList<Integer> genSection(){
+    private ArrayList<Integer> genSection(int[][] a, int index){
+        ArrayList<Integer> section = new ArrayList<Integer>();
+        section.add(index);
+        for(int i = 0; i < a[section.get(0)].length; i++){
+            if(a[section.get(0)][i] == 1){
+                for(int j = 0; j < a.length - 1; j++){
+                    if(a[j] == a[section.get(0)]){
+                        continue;
+                    }
+                    if(a[j][i] == 1 && !section.contains(j)){
+                        section.add(j);
+                        break;
+                    }
+                }
+            }
+
+        }
         return null;
+
+
+
     }
 
     private void guessSolutions(int[][] a, int[] b, int[] xi, int aiIndex) { // guess solutions to equation aiIndex given x_i
