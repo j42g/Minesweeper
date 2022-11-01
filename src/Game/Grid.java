@@ -106,7 +106,6 @@ public class Grid {
             }
         }
         // print out all equations
-        int variableCount = 0;
         String totalEquation = "";
         String currEquation;
         boolean empty;
@@ -251,6 +250,18 @@ public class Grid {
 
     public Tile[][] getField() {
         return this.field;
+    }
+
+    public ArrayList<Tile> getRevealed(){
+        ArrayList<Tile> revealed = new ArrayList<Tile>();
+        for (int x = 0; x < this.height; x++) {
+            for (int y = 0; y < this.width; y++){
+                if(this.field[x][y].isRevealed()){
+                    revealed.add(this.field[x][y]);
+                }
+            }
+        }
+        return revealed;
     }
 
     public boolean isLost() {

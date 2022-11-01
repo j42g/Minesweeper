@@ -8,6 +8,7 @@ import java.util.Stack;
 import Game.Grid;
 import Game.Move;
 import Game.Tile;
+import Starter.Util;
 
 public class DetSolve {
 
@@ -15,17 +16,16 @@ public class DetSolve {
     private final ArrayList<BigInteger> allCurrSolutions;
     private final Stack<Move> moveStack;
     private boolean allCornersOpen;
-    private int count = 0;
 
     public DetSolve(Grid g) {
         this.grid = g;
         this.moveStack = new Stack<Move>();
-         this.allCurrSolutions = new ArrayList<BigInteger>();
+        this.allCurrSolutions = new ArrayList<BigInteger>();
         this.allCornersOpen = false;
     }
 
     public boolean start() {
-        this.random();
+        this.guessCorners();
         while (!this.grid.isLost() && !grid.isWon()) {
             // actual logic
             this.simpleRules();
@@ -38,13 +38,9 @@ public class DetSolve {
                 this.moveHandle();
                 continue;
             }
-            this.count++;
-            if(this.count == 1000000){
-                this.grid.print();
-                System.out.println("KEKW");
+            if(!this.allCornersOpen){
+                this.guessCorners();
             }
-            // guess for now
-            this.random();
             this.moveHandle();
         }
         /*if(this.grid.isWon()){
@@ -59,7 +55,6 @@ public class DetSolve {
         int markedCount;
         ArrayList<Tile> cleanNeighbours = new ArrayList<Tile>(); // clean means unmarked und revealed
         Tile currTile;
-        Move currMove;
         for (int x = 0; x < this.grid.getWidth(); x++) {
             for (int y = 0; y < this.grid.getHeight(); y++) { // Loop over revealed Tiles TODO change
                 currTile = this.grid.getField()[x][y];
@@ -82,19 +77,13 @@ public class DetSolve {
                 // actual cases
                 if (currTile.getCount() == cleanNeighbours.size() + markedCount) { // all neighbours are bombs
                     for(Tile neighbour : cleanNeighbours){
-                        currMove = new Move(neighbour, true);
-                        if(!this.moveStack.contains(currMove)){
-                            this.moveStack.push(currMove);
-                        }
+                        this.pushMove(new Move(neighbour, true));
                     }
 
                 }
                 if (currTile.getCount() == markedCount) { // all neighbours are NOT bombs
                     for(Tile neighbour : cleanNeighbours){
-                        currMove = new Move(neighbour, false);
-                        if(!this.moveStack.contains(currMove)){
-                            this.moveStack.push(currMove);
-                        }
+                        this.pushMove(new Move(neighbour, false));
                     }
                 }
             }
@@ -146,7 +135,7 @@ public class DetSolve {
             if(this.grid.getRemainingBombCount() == this.grid.getRemainingUnrevealedCount()){ // all remaining tiles are bombs
                 this.handleWeirdCase(true);
             } else {
-                    this.trulyRandom();
+                this.trulyRandom();
             }
             return;
         }
@@ -188,22 +177,21 @@ public class DetSolve {
                 }
                 currB[i] = b[sec.get(i)];
             }
-
             this.guessSolutions(currA, currB, currXi, 0);
             OR = new BigInteger("0");
-            AND = new BigInteger("0");
+            AND = this.allCurrSolutions.get(0); // so its not 000000...
             for (BigInteger currSolution : this.allCurrSolutions) { // AND and OR
                 AND = AND.and(currSolution);
                 OR = OR.or(currSolution);
             }
             for (int i = 0; i < Math.max(AND.bitCount(), OR.bitCount()); i++) { // check if solution is found
                 if (AND.testBit(i)) {
-                    this.moveStack.push(new Move(edgeUnrevealed.get(secVars.get(i)), true));
+                    this.pushMove(new Move(edgeUnrevealed.get(secVars.get(i)), true));
                     //System.out.println("PUSHED EQ: " + this.moveStack.peek());
                     foundSolution = true;
                 }
                 if (!OR.testBit(i)) {
-                    this.moveStack.push(new Move(edgeUnrevealed.get(secVars.get(i)), false));
+                    this.pushMove(new Move(edgeUnrevealed.get(secVars.get(i)), false));
                     //System.out.println("PUSHED EQ: " + this.moveStack.peek());
                     foundSolution = true;
                 }
@@ -248,7 +236,7 @@ public class DetSolve {
             for(int j = 0; j < a[0].length; j++) { // all variables in eq i
                 if (a[currEqInd][j] == 1) { // check if set
                     for(int k = 0; k < a.length; k++){ // check all other equations for j
-                        if(k == i){ // dont have to check itself
+                        if(k == currEqInd){ // dont have to check itself
                             continue;
                         }
                         if(a[k][j] == 1 && !section.contains(k)){
@@ -333,7 +321,7 @@ public class DetSolve {
         this.moveStack.push(new Move(unrevealed.get((int)(Math.random()*unrevealed.size())), false));
     }
 
-    private void random() {
+    private void guessCorners() {
         // top left
         if (!this.grid.getField()[0][0].isRevealed()) {
             this.moveStack.push(new Move(0, 0, false));
@@ -354,6 +342,12 @@ public class DetSolve {
             this.moveStack.push(new Move(0, this.grid.getHeight() - 1, false));
         }
         this.allCornersOpen = true;
+    }
+
+    private void pushMove(Move m){
+        if(!this.moveStack.contains(m)){
+            this.moveStack.push(m);
+        }
     }
 
     private void moveHandle() {
