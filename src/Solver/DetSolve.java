@@ -1,5 +1,6 @@
 package Solver;
 
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,12 +15,16 @@ public class DetSolve {
 
     private final Grid grid;
     private final ArrayList<BigInteger> allFullSolutions; // binary representation corresponds to whether tile is bomb or not
+    private final ArrayList<BigInteger> allCurrSolutions;
     private final Stack<Move> moveStack;
+    private boolean allCornersOpen;
 
     public DetSolve(Grid g) {
         this.grid = g;
         this.moveStack = new Stack<Move>();
         this.allFullSolutions = new ArrayList<BigInteger>();
+        this.allCurrSolutions = new ArrayList<BigInteger>();
+        this.allCornersOpen = false;
     }
 
     public boolean start() {
@@ -39,6 +44,11 @@ public class DetSolve {
             // guess for now
             this.random();
             this.moveHandle();
+        }
+        if(this.grid.isWon()){
+            System.out.println("WON");
+        } else {
+            System.out.println("LOST");
         }
         return this.grid.isWon();
     }
@@ -130,105 +140,158 @@ public class DetSolve {
             }
 
         }
-        if(a.length == 0){ // check if empty
+        if (a.length == 0) { // check if empty
             return;
         }
-        // split into sections
+        // split into sections for optimization
         ArrayList<ArrayList<Integer>> sections = new ArrayList<ArrayList<Integer>>();
-        ArrayList<Integer> section = new ArrayList<Integer>();
+        ArrayList<Integer> remainingEqs = new ArrayList<Integer>();
+        for (int i = 0; i < a.length; i++) { // fill with all equation indices
+            remainingEqs.add(i);
+        }
+        sections.add(this.genSection(a, 0));
+        remainingEqs.removeAll(sections.get(0));
+        while (!remainingEqs.isEmpty()) {
+            sections.add(0, this.genSection(a, remainingEqs.get(0)));
+            remainingEqs.removeAll(sections.get(0));
+        }
+        // FOR EACH SECTION
+        ArrayList<Integer> secVars;
+        int[][] currA;
+        int[] currB;
+        int[] currXi;
+        BigInteger AND;
+        BigInteger OR;
+        boolean foundSolution = false;
+        int[] p;
+        double bestP = 0;
+        Move bestMove = null;
+        //Util.printEqns(a, b);
+        for (ArrayList<Integer> sec : sections) {
+            //System.out.println(sec);
+            this.allCurrSolutions.clear();
+            secVars = this.getSectionVars(a, sec);
+            currXi = new int[secVars.size()];
+            Arrays.fill(currXi, -1); // invalidate everything
+            currA = new int[sec.size()][secVars.size()];
+            currB = new int[sec.size()];
+            for (int i = 0; i < currA.length; i++) { // fill currA and currB with a and b
+                for (int j = 0; j < secVars.size(); j++) {
+                    currA[i][j] = a[sec.get(i)][secVars.get(j)];
+                }
+                currB[i] = b[sec.get(i)];
+            }
+            //System.out.println(sec);
+            //Util.printEqns(currA, currB);
+            this.guessSolutions2(currA, currB, currXi, 0);
+            OR = new BigInteger("0");
+            AND = new BigInteger("0");
+            for (BigInteger currSolution : this.allCurrSolutions) { // AND and OR
+                AND = AND.and(currSolution);
+                OR = OR.or(currSolution);
+            }
+            for (int i = 0; i < Math.max(AND.bitCount(), OR.bitCount()); i++) { // check if solution if found
+                if (AND.testBit(i)) {
+                    this.moveStack.push(new Move(edgeUnrevealed.get(secVars.get(i)), true));
+                    System.out.println("PUSHED EQ: " + this.moveStack.peek());
+                    foundSolution = true;
+                }
+                if (!OR.testBit(i)) {
+                    this.moveStack.push(new Move(edgeUnrevealed.get(secVars.get(i)), false));
+                    System.out.println("PUSHED EQ: " + this.moveStack.peek());
+                    foundSolution = true;
+                }
+            }
+            p = new int[currXi.length];
+            for (int i = 0; i < p.length; i++) {
+                for (BigInteger currSolution : this.allCurrSolutions) {
+                    if (!currSolution.testBit(i)) {
+                        p[i]++;
+                    }
+                }
+                if (p[i] / ( (double) p.length) > bestP) {
+                    bestP = p[i] / ( (double) p.length);
+                    bestMove = new Move(edgeUnrevealed.get(secVars.get(i)), false);
+                }
+            }
+            //Util.printArr(p);
+        }
+        //System.out.println(foundSolution + " KEKW " + (bestMove == null));
+        if (!foundSolution && bestMove != null && this.allCornersOpen) { // have to guess
+            System.out.println("PUSHED GUESSED: " + bestMove);
+            this.moveStack.push(bestMove);
+        }
+    }
 
-        section.add(0);
-        for(int i = 0; i < a[section.get(0)].length; i++){
-            if(a[section.get(0)][i] != 1){
-                continue;
-            }
-            for(int j = 0; j < a.length - 1; j++){
-                if(a[j] == a[section.get(0)]){
-                    continue;
-                }
-                if(a[j][i] == 1 && !section.contains(j)){
-                    section.add(j);
-                    break;
+    private ArrayList<Integer> getSectionVars(int[][] a, ArrayList<Integer> section) {
+        ArrayList<Integer> countedVars = new ArrayList<Integer>();
+        for(int eqInd = 0; eqInd < section.size(); eqInd++){
+            for(int var = 0; var < a[0].length; var++){
+                if(a[section.get(eqInd)][var] == 1 && !countedVars.contains(var)){
+                    countedVars.add(var);
                 }
             }
         }
-        Util.printEqns(a, b);
-        System.out.println(section);
-
-        int[] xi = new int[a[0].length];
-        Arrays.fill(xi, -1); // invalidate everything
-        this.allFullSolutions.clear(); // make empty if something is in there
-        guessSolutions(a, b, xi, 0); // full allFullSolutions
-        if(allFullSolutions.size() > 1000000){
-            this.grid.print();
-            Util.printEqns(a, b);
-        }
-        // AND and OR the Solutions
-        BigInteger and = new BigInteger("0");
-        BigInteger or = new BigInteger("0");
-        for (BigInteger allFullSolution : this.allFullSolutions) {
-            and = and.and(allFullSolution);
-            or = or.or(allFullSolution);
-        }
-        boolean certainSolutionFound = false;
-        for(int i = 0; i < and.bitCount(); i++){
-            if(and.testBit(i)){
-                this.moveStack.push(new Move(edgeUnrevealed.get(i), true));
-                certainSolutionFound = true;
-            }
-        }
-        for(int i = 0; i < or.bitCount(); i++){
-            if(!or.testBit(i)){
-                this.moveStack.push(new Move(edgeUnrevealed.get(i), false));
-                certainSolutionFound = true;
-            }
-        }
-        if(certainSolutionFound){
-            return;
-        }
-        // most likely square to not have bomb
-        int[] p = new int[xi.length];
-        int iMax = 0;
-        for(int i = 0; i < p.length; i++){
-            for(BigInteger allFullSolution : this.allFullSolutions) {
-                if (!allFullSolution.testBit(i)) {
-                    p[i]++;
-                }
-            }
-            if(p[i] > p[iMax]){
-                iMax = i;
-            }
-        }
-        double iMaxP = p[iMax] / ( (double) this.allFullSolutions.size());
-        double randomP = 1 - this.grid.getRemainingBombCount() / ( (double) this.grid.getRemainingUnrevealedCount() );
-        if(iMaxP > randomP){
-            this.moveStack.push(new Move(edgeUnrevealed.get(iMax), false));
-        } else {
-            // TODO choose non edge tile at random
-        }
+        return countedVars;
     }
 
     private ArrayList<Integer> genSection(int[][] a, int index){
         ArrayList<Integer> section = new ArrayList<Integer>();
         section.add(index);
-        for(int i = 0; i < a[section.get(0)].length; i++){
-            if(a[section.get(0)][i] == 1){
-                for(int j = 0; j < a.length - 1; j++){
-                    if(a[j] == a[section.get(0)]){
-                        continue;
-                    }
-                    if(a[j][i] == 1 && !section.contains(j)){
-                        section.add(j);
-                        break;
+        int currEqInd;
+        for(int i = 0; i < section.size(); i++){
+            currEqInd = section.get(i);
+            for(int j = 0; j < a[0].length; j++) { // all variables in eq i
+                if (a[currEqInd][j] == 1) { // check if set
+                    for(int k = 0; k < a.length; k++){ // check all other equations for j
+                        if(k == i){ // dont have to check itself
+                            continue;
+                        }
+                        if(a[k][j] == 1 && !section.contains(k)){
+                            section.add(k);
+                        }
                     }
                 }
             }
-
         }
-        return null;
 
+        return section;
+    }
 
-
+    private void guessSolutions2(int[][] a, int[] b, int[] xi, int aiIndex) { // guess solutions to equation aiIndex given x_i
+        if (aiIndex == a.length) {
+            BigInteger solution = new BigInteger("0");
+            for(int i = 0; i < xi.length; i++){
+                if(xi[i] == 1){
+                    solution = solution.setBit(i);
+                }
+            }
+            this.allCurrSolutions.add(solution);
+            return;
+        }
+        if (checkEquation(a[aiIndex], b[aiIndex], xi)) {
+            guessSolutions2(a, b, xi, aiIndex + 1);
+            return;
+        }
+        // generate all Solutions given xi
+        ArrayList<Integer> indFreeVars = new ArrayList<Integer>();
+        for (int j = 0; j < a[aiIndex].length; j++) { // get Index of free variable of that equation
+            if (a[aiIndex][j] == 1 && xi[j] == -1) {
+                indFreeVars.add(j);
+            }
+        }
+        int num;
+        int[] xiNew = Arrays.copyOf(xi, xi.length);
+        for (int i = 0; i < Math.pow(2, indFreeVars.size()); i++) {
+            num = i;
+            for (Integer indFreeVar : indFreeVars) {
+                xiNew[indFreeVar] = num % 2;
+                num /= 2;
+            }
+            if (checkEquation(a[aiIndex], b[aiIndex], xiNew)) {
+                guessSolutions2(a, b, xiNew, aiIndex + 1);
+            }
+        }
     }
 
     private void guessSolutions(int[][] a, int[] b, int[] xi, int aiIndex) { // guess solutions to equation aiIndex given x_i
@@ -299,26 +362,16 @@ public class DetSolve {
         // bottom left
         if (!this.grid.getField()[0][this.grid.getHeight() - 1].isRevealed()) {
             this.moveStack.push(new Move(0, this.grid.getHeight() - 1, false));
-            return;
         }
-        // completely random
-        int x;
-        int y;
-        while (true) {
-            x = (int) (Math.random() * this.grid.getWidth());
-            y = (int) (Math.random() * this.grid.getHeight());
-            if (!this.grid.getField()[x][y].isRevealed()) {
-                this.moveStack.push(new Move(x, y, false));
-                return;
-            }
-        }
+        this.allCornersOpen = true;
     }
 
     private void moveHandle() {
         while (!this.moveStack.empty()) {
+            System.out.println("MOVED: " + this.moveStack.peek());
             this.grid.move(this.moveStack.pop());
         }
-        // this.grid.print();
+        this.grid.print();
         //try { Thread.sleep(2000); } catch (Exception e) {}
     }
 }

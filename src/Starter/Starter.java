@@ -3,11 +3,17 @@ package Starter;
 import Game.Grid;
 import Solver.DetSolve;
 
-public class Starter {
+import java.util.ArrayList;
 
+public class Starter {
     public static void main(String[] args) {
-        System.out.println("\u2605");
-        Util.test(10000);
+
+        //Util.test(10000);
+
+        Grid g = new Grid('h');
+        DetSolve d = new DetSolve(g);
+        d.start();
+
     }
 
 }
