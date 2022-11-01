@@ -1,6 +1,5 @@
 package Solver;
 
-import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,12 +8,10 @@ import java.util.Stack;
 import Game.Grid;
 import Game.Move;
 import Game.Tile;
-import Starter.Util;
 
 public class DetSolve {
 
     private final Grid grid;
-    private final ArrayList<BigInteger> allFullSolutions; // binary representation corresponds to whether tile is bomb or not
     private final ArrayList<BigInteger> allCurrSolutions;
     private final Stack<Move> moveStack;
     private boolean allCornersOpen;
@@ -22,8 +19,7 @@ public class DetSolve {
     public DetSolve(Grid g) {
         this.grid = g;
         this.moveStack = new Stack<Move>();
-        this.allFullSolutions = new ArrayList<BigInteger>();
-        this.allCurrSolutions = new ArrayList<BigInteger>();
+         this.allCurrSolutions = new ArrayList<BigInteger>();
         this.allCornersOpen = false;
     }
 
@@ -181,8 +177,7 @@ public class DetSolve {
                 }
                 currB[i] = b[sec.get(i)];
             }
-            //System.out.println(sec);
-            //Util.printEqns(currA, currB);
+
             this.guessSolutions2(currA, currB, currXi, 0);
             OR = new BigInteger("0");
             AND = new BigInteger("0");
@@ -190,7 +185,7 @@ public class DetSolve {
                 AND = AND.and(currSolution);
                 OR = OR.or(currSolution);
             }
-            for (int i = 0; i < Math.max(AND.bitCount(), OR.bitCount()); i++) { // check if solution if found
+            for (int i = 0; i < Math.max(AND.bitCount(), OR.bitCount()); i++) { // check if solution is found
                 if (AND.testBit(i)) {
                     this.moveStack.push(new Move(edgeUnrevealed.get(secVars.get(i)), true));
                     System.out.println("PUSHED EQ: " + this.moveStack.peek());
@@ -214,9 +209,7 @@ public class DetSolve {
                     bestMove = new Move(edgeUnrevealed.get(secVars.get(i)), false);
                 }
             }
-            //Util.printArr(p);
         }
-        //System.out.println(foundSolution + " KEKW " + (bestMove == null));
         if (!foundSolution && bestMove != null && this.allCornersOpen) { // have to guess
             System.out.println("PUSHED GUESSED: " + bestMove);
             this.moveStack.push(bestMove);
@@ -225,9 +218,9 @@ public class DetSolve {
 
     private ArrayList<Integer> getSectionVars(int[][] a, ArrayList<Integer> section) {
         ArrayList<Integer> countedVars = new ArrayList<Integer>();
-        for(int eqInd = 0; eqInd < section.size(); eqInd++){
-            for(int var = 0; var < a[0].length; var++){
-                if(a[section.get(eqInd)][var] == 1 && !countedVars.contains(var)){
+        for (Integer integer : section) {
+            for (int var = 0; var < a[0].length; var++) {
+                if (a[integer][var] == 1 && !countedVars.contains(var)) {
                     countedVars.add(var);
                 }
             }
@@ -290,42 +283,6 @@ public class DetSolve {
             }
             if (checkEquation(a[aiIndex], b[aiIndex], xiNew)) {
                 guessSolutions2(a, b, xiNew, aiIndex + 1);
-            }
-        }
-    }
-
-    private void guessSolutions(int[][] a, int[] b, int[] xi, int aiIndex) { // guess solutions to equation aiIndex given x_i
-        if (aiIndex == a.length) {
-            BigInteger solution = new BigInteger("0");
-            for(int i = 0; i < xi.length; i++){
-                if(xi[i] == 1){
-                    solution = solution.setBit(i);
-                }
-            }
-            this.allFullSolutions.add(solution);
-            return;
-        }
-        if (checkEquation(a[aiIndex], b[aiIndex], xi)) {
-            guessSolutions(a, b, xi, aiIndex + 1);
-            return;
-        }
-        // generate all Solutions given xi
-        ArrayList<Integer> indFreeVars = new ArrayList<Integer>();
-        for (int j = 0; j < a[aiIndex].length; j++) { // get Index of free variable of that equation
-            if (a[aiIndex][j] == 1 && xi[j] == -1) {
-                indFreeVars.add(j);
-            }
-        }
-        int num;
-        int[] xiNew = Arrays.copyOf(xi, xi.length);
-        for (int i = 0; i < Math.pow(2, indFreeVars.size()); i++) {
-            num = i;
-            for (Integer indFreeVar : indFreeVars) {
-                xiNew[indFreeVar] = num % 2;
-                num /= 2;
-            }
-            if (checkEquation(a[aiIndex], b[aiIndex], xiNew)) {
-                guessSolutions(a, b, xiNew, aiIndex + 1);
             }
         }
     }
