@@ -12,12 +12,12 @@ public class Grid {
     public final static int MOVE_INVALID = -1;
     public final static int WON = 1;
     private Tile[][] field;
+    private final ArrayList<Tile> revealed;
     private final int width;
     private final int height;
     private final int totalSquares;
     private final int totalBombs;
     private int markedBombCount;
-    private int revealedCount;
     private boolean lost;
     private boolean won;
     private boolean firstMove;
@@ -29,10 +29,10 @@ public class Grid {
         this.totalSquares = this.width * this.height;
         this.totalBombs = bombs;
         this.markedBombCount = 0;
-        this.revealedCount = 0;
         this.lost = false;
         this.won = false;
         this.firstMove = true;
+        this.revealed = new ArrayList<Tile>();
         this.generateField();
     }
 
@@ -59,11 +59,11 @@ public class Grid {
                 this.totalBombs = 16;
         }
         this.markedBombCount = 0;
-        this.revealedCount = 0;
         this.totalSquares = this.width * this.height;
         this.lost = false;
         this.won = false;
-        firstMove = true;
+        this.firstMove = true;
+        this.revealed = new ArrayList<Tile>();
         this.generateField();
     }
 
@@ -163,7 +163,7 @@ public class Grid {
 
     private void revealSection(Tile curr) {
         curr.reveal();
-        this.revealedCount++;
+        this.revealed.add(curr);
         if(curr.getCount() != 0) {
             return;
         }
@@ -176,7 +176,7 @@ public class Grid {
                 continue;
             }
             i.reveal();
-            this.revealedCount++;
+            this.revealed.add(i);
         }
     }
 
@@ -251,15 +251,7 @@ public class Grid {
     }
 
     public ArrayList<Tile> getRevealed(){
-        ArrayList<Tile> revealed = new ArrayList<Tile>();
-        for (int x = 0; x < this.height; x++) {
-            for (int y = 0; y < this.width; y++){
-                if(this.field[x][y].isRevealed()){
-                    revealed.add(this.field[x][y]);
-                }
-            }
-        }
-        return revealed;
+        return this.revealed;
     }
 
     public boolean isLost() {
@@ -283,12 +275,12 @@ public class Grid {
     }
 
     public int getRemainingUnrevealedCount(){
-        return this.totalSquares - this.revealedCount - this.markedBombCount;
+        return this.totalSquares - this.revealed.size() - this.markedBombCount;
     }
 
     public void print() {
         System.out.println("Remaining Bombs:\t" + (this.totalBombs-this.markedBombCount) +
-                "\tUnrevealed Tiles:\t" + (this.totalSquares - this.revealedCount - this.markedBombCount));
+                "\tUnrevealed Tiles:\t" + (this.totalSquares - this.revealed.size() - this.markedBombCount));
 
         if (this.lost || this.won) {
             this.printRevealed();
@@ -299,7 +291,7 @@ public class Grid {
 
     public void printDebug(boolean see) {
         System.out.println("Remaining Bombs:\t" + (this.totalBombs-this.markedBombCount) +
-                "\tUnrevealed Tiles:\t" + (this.totalSquares - this.revealedCount - this.markedBombCount));
+                "\tUnrevealed Tiles:\t" + (this.totalSquares - this.revealed.size() - this.markedBombCount));
         if(see) {
             this.printRevealed();
         } else {
