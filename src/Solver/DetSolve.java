@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.Stack;
 
 import Game.Grid;
+import Game.Gridable;
 import Game.Move;
 import Game.Tile;
-import Starter.Util;
 
 public class DetSolve {
 
@@ -194,6 +194,11 @@ public class DetSolve {
                     this.pushMove(new Move(edgeUnrevealed.get(secVars.get(i)), false));
                     //System.out.println("PUSHED EQ: " + this.moveStack.peek());
                     foundSolution = true;
+                }
+            }
+            for(int i = this.allCurrSolutions.size() - 1; i > 0; i--){  // throw away all solutions with more zeroes than are left
+                if(this.grid.getRemainingBombCount() < this.allCurrSolutions.get(i).bitCount()){
+                    this.allCurrSolutions.remove(i);
                 }
             }
             p = new int[currXi.length];

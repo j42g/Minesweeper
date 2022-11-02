@@ -7,12 +7,10 @@ import Starter.Util;
 
 public class Grid {
 
-    // GAME CODES
     public final static int LOST = -2;
     public final static int MOVE_VALID = 0;
     public final static int MOVE_INVALID = -1;
     public final static int WON = 1;
-
     private Tile[][] field;
     private final int width;
     private final int height;
