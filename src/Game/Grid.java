@@ -89,7 +89,7 @@ public class Grid {
         // gen field
         for(int i = 0; i < this.width; i++){
             for(int j = 0; j < this.height; j++){
-                this.field[i][j] = new Tile(i, j, false, i*this.width + j);
+                this.field[i][j] = new Tile(i, j, false);
             }
         }
         // neighbours
@@ -129,7 +129,6 @@ public class Grid {
                 }
             }
         }
-        this.genEquations();
         this.print();
     }
 
@@ -152,40 +151,8 @@ public class Grid {
             System.out.print("Reveal=0 or Mark=1?");
             m = s.nextInt();
             this.move(new Move(x, y, (m == 1)));
-            this.genEquations();
         }
         System.out.println("You lost.");
-    }
-
-    public void genEquations() {
-        // get a list of all non-zero count, revealed thingies
-        ArrayList<Tile> edge = new ArrayList<Tile>();
-        Tile curr;
-        for (int x = 0; x < this.width; x++) {
-            for (int y = 0; y < this.height; y++) {
-                curr = field[x][y];
-                if((curr.isRevealed() || curr.isMarked()) && curr.getCount() != 0) {
-                    edge.add(curr);
-                }
-            }
-        }
-        // print out all equations
-        String totalEquation = "";
-        String currEquation;
-        boolean empty;
-        for(Tile e : edge) {
-            empty = true;
-            currEquation = e.getCount() + "=";
-            for(Tile n : e.getNeighbours()) {
-                if(!n.isRevealed())
-                    currEquation = currEquation + "+x_" + n.getID();
-                empty = false;
-            }
-            if(!empty) {
-                totalEquation = totalEquation + currEquation + ",";
-            }
-        }
-        System.out.println(totalEquation);
     }
 
     public int move(Move m) {
@@ -275,10 +242,10 @@ public class Grid {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 if (Math.random() < remainingBombs / ((double) remainingSquares)) {
-                    this.field[x][y] = new Tile(x, y, true, x*this.width + y);
+                    this.field[x][y] = new Tile(x, y, true);
                     remainingBombs--;
                 } else {
-                    this.field[x][y] = new Tile(x, y, false, x*this.width + y);
+                    this.field[x][y] = new Tile(x, y, false);
                 }
                 remainingSquares--;
             }

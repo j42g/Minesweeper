@@ -11,7 +11,7 @@ public class Starter {
         DetSolve s = new DetSolve(g);*/
 
         long t1 = System.nanoTime();
-        Util.test(100000);
+        Util.test(10000);
         long t2 = System.nanoTime();
         System.out.println((t2 - t1)/100000000d);
 

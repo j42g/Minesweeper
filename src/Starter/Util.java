@@ -12,7 +12,7 @@ public class Util {
         Grid g;
         int won = 0;
         for(int i = 0; i < num; i++){
-            g = new Grid('h');
+            g = new Grid(99, 99, 1250);
             DetSolve s = new DetSolve(g);
             if(s.start()){
                 won++;

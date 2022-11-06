@@ -9,15 +9,13 @@ public class Tile {
     private final boolean bomb;
     private Tile[] neighbours;
     private int count;
-    private final int ID;
 
-    public Tile(int x, int y, boolean bomb, int ID) {
+    public Tile(int x, int y, boolean bomb) {
         this.x = x;
         this.y = y;
         this.bomb = bomb;
         this.revealed = false;
         this.marked = false;
-        this.ID = ID;
     }
 
     void addNeighbours(Tile[] neighbours) {
