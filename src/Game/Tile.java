@@ -71,10 +71,6 @@ public class Tile {
         return this.revealed;
     }
 
-    public int getID() {
-        return this.ID;
-    }
-
     public String toString() {
         return "(" + this.x + ", " + this.y + ")";
     }
