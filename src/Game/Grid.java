@@ -1,5 +1,6 @@
 package Game;
 
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -67,6 +68,74 @@ public class Grid {
         this.generateField();
     }
 
+    public Grid (){
+        Scanner s = new Scanner(System.in);
+        System.out.println("Width of the total field relevant? ");
+        this.width = s.nextInt();
+        System.out.println("Height of the total field relevant? ");
+        this.height = s.nextInt();
+        this.totalSquares = this.width * this.height;
+        this.field = new Tile[width][height];
+        this.totalBombs = Integer.MAX_VALUE;
+        this.revealed = new ArrayList<>();
+        System.out.println("x-Index of Top right Corner? ");
+        int xoff = s.nextInt();
+        System.out.println("y-Index of Top right Corner? ");
+        int yoff = s.nextInt();
+        System.out.println("Width of Known? ");
+        int x = s.nextInt();
+        System.out.println("Height of Known? ");
+        int y = s.nextInt();
+        char[][] known = new char[x][y];
+        String currRow;
+        // gen field
+        for(int i = 0; i < this.width; i++){
+            for(int j = 0; j < this.height; j++){
+                this.field[i][j] = new Tile(i, j, false, i*this.width + j);
+            }
+        }
+        // neighbours
+        ArrayList<Tile> n;
+        Tile[] arr;
+        for (int i = 0; i < this.width; i++) {
+            for (int j = 0; j < this.height; j++) {
+                n = new ArrayList<Tile>();
+                for (int ioff = -1; ioff < 2; ioff++) { // x-offset
+                    for (int joff = -1; joff < 2; joff++) { // y-offset
+                        if (ioff == 0 && joff == 0) { // (x, y) is not a neighbour of (x, y)
+                            continue;
+                        }
+                        if ((-1 < (i + ioff) && (i + ioff) < this.width && -1 < (j + joff) && (j + joff) < this.height)) { // check if in Grid
+                            n.add(field[i + ioff][j + joff]);
+                        }
+                    }
+                }
+                arr = new Tile[n.size()];
+                for (int i1 = 0; i1 < arr.length; i1++) {
+                    arr[i1] = n.get(i1);
+                }
+                this.field[i][j].addNeighbours(arr);
+            }
+        }
+        // put the known section in
+        Tile temp;
+        for(int i = 0; i < y; i++){
+            System.out.println("Enter Row: ");
+            currRow = s.next();
+            for(int j = 0; j < x; j++){
+                if(currRow.charAt(j) == 'B'){
+                    this.field[j + xoff][i + yoff].changeMarked();
+                } else if(currRow.charAt(j) != 'U'){
+                    this.field[j + xoff][i + yoff].setCount(Character.getNumericValue(currRow.charAt(j)));
+                    this.field[j + xoff][i + yoff].reveal();
+                    this.revealed.add(this.field[j + xoff][i + yoff]);
+                }
+            }
+        }
+        this.genEquations();
+        this.print();
+    }
+
     public void consoleGame() { // main gameloop
         Scanner s = new Scanner(System.in);
         int x;
@@ -120,8 +189,6 @@ public class Grid {
             }
         }
         System.out.println(totalEquation);
-
-
     }
 
     public int move(Move m) {

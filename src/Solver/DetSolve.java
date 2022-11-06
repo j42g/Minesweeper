@@ -52,6 +52,15 @@ public class DetSolve {
         return this.grid.isWon();
     }
 
+    public void giveBestMoves(){
+        this.allCornersOpen = true;
+        this.equationSolution();
+        for(Move i : this.moveStack){
+            System.out.println(i);
+        }
+
+    }
+
     private void simpleRules() {
         int markedCount;
         ArrayList<Tile> cleanNeighbours = new ArrayList<Tile>(); // clean means unmarked und revealed
@@ -90,12 +99,9 @@ public class DetSolve {
         // count/gen edge tiles
         ArrayList<Tile> edgeRevealed = new ArrayList<Tile>();
         ArrayList<Tile> edgeUnrevealed = new ArrayList<Tile>();
-        Tile curr;
         boolean isEdgeRevealed;
-        for (int x = 0; x < this.grid.getWidth(); x++) {
-            for (int y = 0; y < this.grid.getHeight(); y++) {
-                curr = this.grid.getField()[x][y];
-                if (curr.getCount() == 0 || !curr.isRevealed()) {
+        for (Tile curr : this.grid.getRevealed()) {
+                if (curr.getCount() == 0) {
                     continue;
                 }
                 isEdgeRevealed = false;
@@ -110,9 +116,10 @@ public class DetSolve {
                 if (isEdgeRevealed) {
                     edgeRevealed.add(curr);
                 }
-            }
+
         }
         // generate equations
+        Tile curr;
         int[][] a = new int[edgeRevealed.size()][edgeUnrevealed.size()];
         int[] b = new int[edgeRevealed.size()];
         for (int i = 0; i < b.length; i++) {
@@ -158,6 +165,7 @@ public class DetSolve {
         int[] p;
         double bestP = 0;
         Move bestMove = null;
+        //Util.printEqns(a, b);
         //Util.printEqns(a, b);
         for (ArrayList<Integer> sec : sections) {
             //System.out.println(sec);
@@ -356,7 +364,7 @@ public class DetSolve {
         while (!this.moveStack.empty()) {
             this.grid.move(this.moveStack.pop());
         }
-        this.grid.print();
+        //this.grid.print();
         //try { Thread.sleep(2000); } catch (Exception e) {}
     }
 }

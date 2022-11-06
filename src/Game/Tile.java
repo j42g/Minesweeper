@@ -33,6 +33,10 @@ public class Tile {
         this.marked = !this.marked;
     }
 
+    void setCount(int count){ // only to enter custome fields
+        this.count = count;
+    }
+
     private void count() {
         for(Tile i : this.neighbours) {
             if(i.isBomb()) {

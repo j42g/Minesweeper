@@ -19,6 +19,9 @@ public class Util {
             if(s.start()){
                 won++;
             }
+            if(i % (num / 100) == 0){
+                System.out.println(100 * i / num + "% Done");
+            }
             //System.out.println("Finished:" + (i+1));
         }
         System.out.println("Played:\t" + num + ",\tWon:\t" + won + ",\t%:\t" + ((100d * won) / num) );
@@ -62,6 +65,7 @@ public class Util {
             System.out.print(" = " + b[i] + "\n");
         }
     }
+
     public static void printArr(int[] arr) {
         for(int i = 0; i < arr.length; i++){
             if(i == arr.length - 1){
