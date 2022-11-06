@@ -1,6 +1,5 @@
 package Game;
 
-import java.util.Arrays;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -86,7 +85,6 @@ public class Grid {
         int x = s.nextInt();
         System.out.println("Height of Known? ");
         int y = s.nextInt();
-        char[][] known = new char[x][y];
         String currRow;
         // gen field
         for(int i = 0; i < this.width; i++){
@@ -118,7 +116,6 @@ public class Grid {
             }
         }
         // put the known section in
-        Tile temp;
         for(int i = 0; i < y; i++){
             System.out.println("Enter Row: ");
             currRow = s.next();

@@ -57,10 +57,6 @@ public class Tile {
         return this.y;
     }
 
-    public int[] getCoord(){
-        return new int[]{this.x, this.y};
-    }
-
     public int getCount() {
         return this.count;
     }

@@ -1,12 +1,10 @@
 package Starter;
 
 import Game.Grid;
-import Game.Move;
 import Solver.DetSolve;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Stack;
 
 public class Util {
 
@@ -113,9 +111,7 @@ public class Util {
                     break;
                 }
             }
-            if (matrix[imax][k] == 0) {
-                k++;
-            } else {
+            if (matrix[imax][k] != 0) {
                 temp = matrix[imax];
                 matrix[imax] = matrix[h];
                 matrix[h] = temp;
@@ -127,8 +123,8 @@ public class Util {
                     }
                 }
                 h++;
-                k++;
             }
+            k++;
 
         }
         printMatrix(matrix);
