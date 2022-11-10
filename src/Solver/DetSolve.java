@@ -11,7 +11,7 @@ import Game.Tile;
 import Starter.Util;
 
 public class DetSolve {
-
+    
     private final Grid grid;
     private final ArrayList<BigInteger> allCurrSolutions;
     private final Stack<Move> moveStack;
@@ -182,6 +182,7 @@ public class DetSolve {
                 currB[i] = b[sec.get(i)];
             }
             this.guessSolutions(currA, currB, currXi, 0);
+            //Util.printEqns(currA, currB);
             //Util.printSolutions(this.allCurrSolutions);
             OR = new BigInteger("0");
             AND = this.allCurrSolutions.get(0); // so its not 000000...
@@ -201,11 +202,6 @@ public class DetSolve {
                     foundSolution = true;
                 }
             }
-            for(int i = this.allCurrSolutions.size() - 1; i > 0; i--){  // throw away all solutions with more bombs than are left
-                if(this.grid.getRemainingBombCount() < this.allCurrSolutions.get(i).bitCount()){
-                    this.allCurrSolutions.remove(i);
-                }
-            }
             p = new int[currXi.length];
             for (int i = 0; i < p.length; i++) {
                 for (BigInteger currSolution : this.allCurrSolutions) {
@@ -217,6 +213,7 @@ public class DetSolve {
                     bestP = p[i] / ( (double) p.length);
                     bestMove = new Move(edgeUnrevealed.get(secVars.get(i)), false);
                 }
+                //Util.printArr(p);
             }
         }
         if (!foundSolution && bestMove != null && this.allCornersOpen) { // have to guess
@@ -268,7 +265,9 @@ public class DetSolve {
                     solution = solution.setBit(i);
                 }
             }
-            this.allCurrSolutions.add(solution);
+            if(solution.bitCount() <= this.grid.getRemainingBombCount()){
+                this.allCurrSolutions.add(solution);
+            }
             return;
         }
         if (checkEquation(a[aiIndex], b[aiIndex], xi)) {
