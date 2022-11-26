@@ -12,9 +12,9 @@ import java.io.File;
 
 public class InputGame {
 
-    private static int[] coordsULC = {1022 - 1, 310 - 1};
-    private static int[] coordsLRC = {1741 + 1, 693 + 1};
-    private static Rectangle section = new Rectangle(coordsULC[0], coordsULC[1],
+    private static final int[] coordsULC = {1022 - 1, 310 - 1};
+    private static final int[] coordsLRC = {1741 + 1, 693 + 1};
+    private static final Rectangle section = new Rectangle(coordsULC[0], coordsULC[1],
             coordsLRC[0] - coordsULC[0], coordsLRC[1] - coordsULC[1]);
 
     public static void solve(){
