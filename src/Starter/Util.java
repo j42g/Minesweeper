@@ -20,6 +20,7 @@ public class Util {
     public static void test(int num){
         Grid g;
         int won = 0;
+        long t1 = System.nanoTime();
         for(int i = 0; i < num; i++){
             g = new Grid('h');
             DetSolve s = new DetSolve(g);
@@ -27,11 +28,11 @@ public class Util {
                 won++;
             }
             if(i % (num / 100) == 0){
-                System.out.println(100 * i / num + "% Done");
+                System.out.print("\r" + 100 * i / num + "% Done");
             }
             //System.out.println("Finished:" + (i+1));
         }
-        System.out.println("Played:\t" + num + ",\tWon:\t" + won + ",\t%:\t" + ((100d * won) / num) );
+        System.out.println("\rPlayed:\t" + num + ",\tWon:\t" + won + ",\t%:\t" + ((100d * won) / num) + "%,\tAvg Time:\t" + (System.nanoTime() - t1)/(100000000d*num) + "s");
     }
 
     public static String toNum(int n, int space) {
