@@ -33,7 +33,7 @@ public class InputGame {
         } catch (AWTException e) {
             throw new RuntimeException(e);
         }
-        for(int j = 0; j < 4; j++){
+        for(int j = 0; j < 40; j++){
             a = new Grid(takeScreenshot());
             b = new DetSolve(a);
             a.print();
@@ -49,7 +49,7 @@ public class InputGame {
                 }
                 //a.print();
                 try {
-                    Thread.sleep(300);
+                    Thread.sleep(30);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -63,8 +63,8 @@ public class InputGame {
         try {
             Robot awt_robot = new Robot();
             BufferedImage game = awt_robot.createScreenCapture(section);
+            ImageIO.write(game, "PNG", new File("screenshot.png"));
             return game;
-            //ImageIO.write(game, "PNG", new File("screenshot.png"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

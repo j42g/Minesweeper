@@ -343,7 +343,7 @@ public class Grid {
                 RGB11[1] = (curr >> 8) & 0xFF;
                 RGB11[2] = curr & 0xFF;
                 // 12, 12
-                curr = game.getRGB(12 + x*24, 12 + y*24);
+                curr = game.getRGB(13 + x*24, 13 + y*24);
                 RGBCC[0] = (curr >> 16) & 0xFF;
                 RGBCC[1] = (curr >> 8) & 0xFF;
                 RGBCC[2] = curr & 0xFF;
@@ -368,6 +368,7 @@ public class Grid {
                         this.field[x][y].setCount(7);
                     } else if(Util.RGBDistance(RGBCC, Colour.EIGTH) < Colour.TOLERANCE){
                         this.field[x][y].setCount(8);
+                        System.out.println("(" + RGBCC[0] + ", " + RGBCC[1] + ", " + RGBCC[2] + ")");
                     } else {
                         this.field[x][y].setCount(0);
                     }
