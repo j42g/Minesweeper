@@ -36,8 +36,7 @@ public class Move {
 
     @Override
     public boolean equals(Object o){
-        if(o instanceof Move){
-            Move b = (Move) o;
+        if(o instanceof Move b){
             return this.x == b.x && this.y == b.y && this.mark == b.mark;
         } else {
             return false;

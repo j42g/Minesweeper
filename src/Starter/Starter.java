@@ -1,22 +1,24 @@
 package Starter;
 
-import Game.Grid;
-import Solver.DetSolve;
+import Input.InputGame;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 public class Starter {
 
+
     public static void main(String[] args) {
 
+
+        InputGame.solve();
+
+
         /*Grid g = new Grid('h');
-        DetSolve s = new DetSolve(g);*/
-
-        long t1 = System.nanoTime();
-        Util.test(10000);
-        long t2 = System.nanoTime();
-        System.out.println((t2 - t1)/100000000d);
-
-
-
+        DetSolve s = new DetSolve(g);
+        s.start();*/
 
     }
 

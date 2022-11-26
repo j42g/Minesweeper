@@ -3,6 +3,7 @@ package Solver;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 import java.util.Stack;
 
 import Game.Grid;
@@ -52,13 +53,24 @@ public class DetSolve {
         return this.grid.isWon();
     }
 
-    public void giveBestMoves(){
-        this.allCornersOpen = true;
-        this.equationSolution();
-        for(Move i : this.moveStack){
-            System.out.println(i);
-        }
+    public Stack<Move> giveBestMoves(){
 
+        this.simpleRules();
+        if (!this.moveStack.empty()) {
+            return this.moveStack;
+        }
+        this.equationSolution();
+        if (!this.moveStack.empty()) {
+            return this.moveStack;
+        }
+        if(!this.allCornersOpen){
+            this.guessCorners();
+        }
+        if (this.moveStack.empty()) { // alle ecken wurden revealed
+            this.allCornersOpen = true;
+            this.equationSolution();
+        }
+        return this.moveStack;
     }
 
     private void simpleRules() {
@@ -137,7 +149,7 @@ public class DetSolve {
         if (a.length == 0) { // check if empty
             if(this.grid.getRemainingBombCount() == this.grid.getRemainingUnrevealedCount()){ // all remaining tiles are bombs
                 this.handleWeirdCase(true);
-            } else {
+            } else if (this.allCornersOpen) {
                 this.trulyRandom();
             }
             return;
@@ -165,7 +177,6 @@ public class DetSolve {
         int[] p;
         double bestP = 0;
         Move bestMove = null;
-        //Util.printEqns(a, b);
         //Util.printEqns(a, b);
         for (ArrayList<Integer> sec : sections) {
             //System.out.println(sec);
@@ -221,7 +232,7 @@ public class DetSolve {
         }
         if (!foundSolution && bestMove != null && this.allCornersOpen) { // have to guess
             //System.out.println("PUSHED GUESSED: " + bestMove);
-            this.moveStack.push(bestMove);
+            this.pushMove(bestMove);
         }
     }
 
@@ -313,7 +324,7 @@ public class DetSolve {
         for(int x = 0; x < this.grid.getWidth(); x++){
             for(int y = 0; y < this.grid.getHeight(); y++){
                 if(!this.grid.getField()[x][y].isRevealed()){
-                    this.moveStack.push(new Move(x, y, areBombs));
+                    this.pushMove(new Move(x, y, areBombs));
                 }
             }
         }
@@ -328,28 +339,28 @@ public class DetSolve {
                 }
             }
         }
-        this.moveStack.push(new Move(unrevealed.get((int)(Math.random()*unrevealed.size())), false));
+        this.pushMove(new Move(unrevealed.get((int)(Math.random()*unrevealed.size())), false));
     }
 
     private void guessCorners() {
         // top left
         if (!this.grid.getField()[0][0].isRevealed()) {
-            this.moveStack.push(new Move(0, 0, false));
+            this.pushMove(new Move(0, 0, false));
             return;
         }
         // top right
         if (!this.grid.getField()[this.grid.getWidth() - 1][0].isRevealed()) {
-            this.moveStack.push(new Move(this.grid.getWidth() - 1, 0, false));
+            this.pushMove(new Move(this.grid.getWidth() - 1, 0, false));
             return;
         }
         // bottom right
         if (!this.grid.getField()[this.grid.getWidth() - 1][this.grid.getHeight() - 1].isRevealed()) {
-            this.moveStack.push(new Move(this.grid.getWidth() - 1, this.grid.getHeight() - 1, false));
+            this.pushMove(new Move(this.grid.getWidth() - 1, this.grid.getHeight() - 1, false));
             return;
         }
         // bottom left
         if (!this.grid.getField()[0][this.grid.getHeight() - 1].isRevealed()) {
-            this.moveStack.push(new Move(0, this.grid.getHeight() - 1, false));
+            this.pushMove(new Move(0, this.grid.getHeight() - 1, false));
         }
         this.allCornersOpen = true;
     }
@@ -364,7 +375,9 @@ public class DetSolve {
         while (!this.moveStack.empty()) {
             this.grid.move(this.moveStack.pop());
         }
-        //this.grid.print();
+        this.grid.print();
+        //Scanner s = new Scanner(System.in);
+        //s.nextLine();
         //try { Thread.sleep(2000); } catch (Exception e) {}
     }
 }

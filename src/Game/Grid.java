@@ -1,16 +1,20 @@
 package Game;
 
+import java.awt.image.BufferedImage;
+import java.sql.SQLOutput;
 import java.util.Scanner;
 import java.util.ArrayList;
 
+import Input.Colour;
 import Starter.Util;
 
 public class Grid {
 
-    public final static int LOST = -2;
+    public final static int MOVE_LOST = -2;
     public final static int MOVE_VALID = 0;
     public final static int MOVE_INVALID = -1;
-    public final static int WON = 1;
+    public final static int MOVE_WON = 1;
+
     private Tile[][] field;
     private final ArrayList<Tile> revealed;
     private final int width;
@@ -132,6 +136,21 @@ public class Grid {
         this.print();
     }
 
+    public Grid(BufferedImage game){
+        //System.out.println("Maybe Width:\t" + game.getWidth() / 23);
+        //System.out.println("Maybe Height:\t" + game.getHeight() / 23);
+        this.width = 30;
+        this.height = 16;
+        this.totalSquares = this.width * this.height;
+        this.totalBombs = 99;
+        this.markedBombCount = 0;
+        this.lost = false;
+        this.won = false;
+        this.firstMove = true;
+        this.revealed = new ArrayList<Tile>();
+        this.generateField(game);
+    }
+
     public void consoleGame() { // main gameloop
         Scanner s = new Scanner(System.in);
         int x;
@@ -177,7 +196,7 @@ public class Grid {
             }
             if(curr.isBomb()){ // is bomb
                 this.lost = true;
-                return LOST;
+                return MOVE_LOST;
             }
             if (curr.isRevealed()) { // already revealed
                 return MOVE_INVALID;
@@ -186,7 +205,7 @@ public class Grid {
             return MOVE_VALID;
         }
         if(this.checkIfSolved()) {
-            return WON;
+            return MOVE_WON;
         } else {
             return MOVE_VALID;
         }
@@ -273,6 +292,90 @@ public class Grid {
                     arr[i] = s.get(i);
                 }
                 this.field[x][y].addNeighbours(arr);
+            }
+        }
+    }
+
+    private void generateField(BufferedImage game) {
+        // fill
+        int remainingBombs = this.totalBombs;
+        int remainingSquares = this.totalSquares;
+        this.field = new Tile[this.width][this.height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                this.field[x][y] = new Tile(x, y, false);
+            }
+        }
+        // give neighbours
+        ArrayList<Tile> s;
+        Tile[] arr;
+        for (int x = 0; x < this.width; x++) {
+            for (int y = 0; y < this.height; y++) {
+                s = new ArrayList<Tile>();
+                for (int i = -1; i < 2; i++) { // x-offset
+                    for (int j = -1; j < 2; j++) { // y-offset
+                        if (i == 0 && j == 0) { // (x, y) is not a neighbour of (x, y)
+                            continue;
+                        }
+                        if ((-1 < (x + i) && (x + i) < this.width && -1 < (y + j) && (y + j) < this.height)) { // check
+                            // if in
+                            // Grid
+                            s.add(field[x + i][y + j]);
+                        }
+                    }
+                }
+                arr = new Tile[s.size()];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = s.get(i);
+                }
+                this.field[x][y].addNeighbours(arr);
+            }
+        }
+        // actual screenshot logic
+        int[] RGB11 = new int[3]; // 0, 0
+        int[] RGBCC = new int[3]; // 12,12
+        int curr;
+        for(int y = 0; y < this.height; y++){
+            for(int x = 0; x < this.width; x++){
+                // 1, 1
+                curr = game.getRGB(1 + x*24, 1 + y*24);
+                RGB11[0] = (curr >> 16) & 0xFF;
+                RGB11[1] = (curr >> 8) & 0xFF;
+                RGB11[2] = curr & 0xFF;
+                // 12, 12
+                curr = game.getRGB(12 + x*24, 12 + y*24);
+                RGBCC[0] = (curr >> 16) & 0xFF;
+                RGBCC[1] = (curr >> 8) & 0xFF;
+                RGBCC[2] = curr & 0xFF;
+                //System.out.println(Integer.toHexString(curr));
+                //System.out.println("(" + RGBCC[0] + ", " + RGBCC[1] + ", " + RGBCC[2] + ")");
+                if(Util.RGBDistance(RGB11, Colour.REVEALED) < Colour.TOLERANCE){ // is revealed?
+                    this.field[x][y].reveal();
+                    this.revealed.add(this.field[x][y]);
+                    if(Util.RGBDistance(RGBCC, Colour.ONE) < Colour.TOLERANCE){
+                        this.field[x][y].setCount(1);
+                    } else if(Util.RGBDistance(RGBCC, Colour.TWO) < Colour.TOLERANCE){
+                        this.field[x][y].setCount(2);
+                    } else if(Util.RGBDistance(RGBCC, Colour.THREE) < Colour.TOLERANCE){
+                        this.field[x][y].setCount(3);
+                    } else if(Util.RGBDistance(RGBCC, Colour.FOUR) < Colour.TOLERANCE){
+                        this.field[x][y].setCount(4);
+                    } else if(Util.RGBDistance(RGBCC, Colour.FIVE) < Colour.TOLERANCE){
+                        this.field[x][y].setCount(5);
+                    } else if(Util.RGBDistance(RGBCC, Colour.SIX) < Colour.TOLERANCE){
+                        this.field[x][y].setCount(6);
+                    } else if(Util.RGBDistance(RGBCC, Colour.SEVEN) < Colour.TOLERANCE){
+                        this.field[x][y].setCount(7);
+                    } else if(Util.RGBDistance(RGBCC, Colour.EIGTH) < Colour.TOLERANCE){
+                        this.field[x][y].setCount(8);
+                    } else {
+                        this.field[x][y].setCount(0);
+                    }
+                } else if(Util.RGBDistance(RGB11, Colour.UNREVEALED) < Colour.TOLERANCE){ // is unrevealed?
+                    if(Util.RGBDistance(RGBCC, Colour.MARKED) < Colour.TOLERANCE){ // is marked?
+                        this.field[x][y].changeMarked();
+                    }
+                }
             }
         }
     }
