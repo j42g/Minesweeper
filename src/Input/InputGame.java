@@ -36,26 +36,24 @@ public class InputGame {
         } catch (AWTException e) {
             throw new RuntimeException(e);
         }
-        for(int j = 0; j < 30; j++){
+        for(int j = 0; j < 40; j++){
             a = new Grid(takeScreenshot());
             b = new DetSolve(a);
             a.print();
             System.out.println("Screenshot:\t" + (j + 1));
             for(Move i : b.giveBestMoves()){
-                System.out.println(i);
-                c.mouseMove(coordsLAPULC[0] + 24*i.getX() + 12, coordsLAPULC[1] + 24*i.getY() + 12);
+                //System.out.println(i);
+                c.mouseMove(coordsULC[0] + 24*i.getX() + 12, coordsULC[1] + 24*i.getY() + 12);
                 if(i.shouldMark()){
                     c.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-                    try { Thread.sleep(10); } catch (InterruptedException e) {}
                     c.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
                 } else {
                     c.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-                    try { Thread.sleep(10); } catch (InterruptedException e) {}
                     c.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
                 }
                 //a.print();
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(30);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -92,5 +90,5 @@ public class InputGame {
         }
     }
 
-
+    }
 }
