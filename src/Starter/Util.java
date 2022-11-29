@@ -22,7 +22,7 @@ public class Util {
         int won = 0;
         long t1 = System.nanoTime();
         for(int i = 0; i < num; i++){
-            g = new Grid('h');
+            g = new Grid('e');
             DetSolve s = new DetSolve(g);
             if(s.start()){
                 won++;

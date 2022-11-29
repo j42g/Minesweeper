@@ -3,7 +3,6 @@ package Solver;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.Stack;
 
 import Game.Grid;
@@ -53,8 +52,7 @@ public class DetSolve {
         return this.grid.isWon();
     }
 
-    public Stack<Move> giveBestMoves(){
-
+    public Iterable<Move> giveBestMoves(){
         this.simpleRules();
         if (!this.moveStack.empty()) {
             return this.moveStack;
@@ -323,7 +321,7 @@ public class DetSolve {
         for(int x = 0; x < this.grid.getWidth(); x++){
             for(int y = 0; y < this.grid.getHeight(); y++){
                 if(!this.grid.getField()[x][y].isRevealed()){
-                    this.pushMove(new Move(x, y, areBombs));
+                    this.moveStack.push(new Move(x, y, areBombs));
                 }
             }
         }
@@ -338,28 +336,28 @@ public class DetSolve {
                 }
             }
         }
-        this.pushMove(new Move(unrevealed.get((int)(Math.random()*unrevealed.size())), false));
+        this.moveStack.push(new Move(unrevealed.get((int)(Math.random()*unrevealed.size())), false));
     }
 
     private void guessCorners() {
         // top left
         if (!this.grid.getField()[0][0].isRevealed()) {
-            this.pushMove(new Move(0, 0, false));
+            this.moveStack.push(new Move(0, 0, false));
             return;
         }
         // top right
         if (!this.grid.getField()[this.grid.getWidth() - 1][0].isRevealed()) {
-            this.pushMove(new Move(this.grid.getWidth() - 1, 0, false));
+            this.moveStack.push(new Move(this.grid.getWidth() - 1, 0, false));
             return;
         }
         // bottom right
         if (!this.grid.getField()[this.grid.getWidth() - 1][this.grid.getHeight() - 1].isRevealed()) {
-            this.pushMove(new Move(this.grid.getWidth() - 1, this.grid.getHeight() - 1, false));
+            this.moveStack.push(new Move(this.grid.getWidth() - 1, this.grid.getHeight() - 1, false));
             return;
         }
         // bottom left
         if (!this.grid.getField()[0][this.grid.getHeight() - 1].isRevealed()) {
-            this.pushMove(new Move(0, this.grid.getHeight() - 1, false));
+            this.moveStack.push(new Move(0, this.grid.getHeight() - 1, false));
         }
         this.allCornersOpen = true;
     }
@@ -374,9 +372,7 @@ public class DetSolve {
         while (!this.moveStack.empty()) {
             this.grid.move(this.moveStack.pop());
         }
-        this.grid.print();
-        //Scanner s = new Scanner(System.in);
-        //s.nextLine();
+        //this.grid.print();
         //try { Thread.sleep(2000); } catch (Exception e) {}
     }
 }

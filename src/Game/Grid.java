@@ -79,7 +79,6 @@ public class Grid {
         this.height = s.nextInt();
         this.totalSquares = this.width * this.height;
         this.field = new Tile[width][height];
-        this.totalBombs = Integer.MAX_VALUE;
         this.revealed = new ArrayList<>();
         System.out.println("x-Index of Top right Corner? ");
         int xoff = s.nextInt();
@@ -89,6 +88,10 @@ public class Grid {
         int x = s.nextInt();
         System.out.println("Height of Known? ");
         int y = s.nextInt();
+        System.out.println("Total Bombs? ");
+        this.totalBombs = s.nextInt();
+        System.out.println("Marked Bombs? ");
+        this.markedBombCount = s.nextInt();
         String currRow;
         // gen field
         for(int i = 0; i < this.width; i++){

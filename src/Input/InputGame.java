@@ -14,8 +14,11 @@ public class InputGame {
 
     private static final int[] coordsULC = {1022 - 1, 310 - 1};
     private static final int[] coordsLRC = {1741 + 1, 693 + 1};
-    private static final Rectangle section = new Rectangle(coordsULC[0], coordsULC[1],
-            coordsLRC[0] - coordsULC[0], coordsLRC[1] - coordsULC[1]);
+
+    private static final int[] coordsLAPULC = {511 - 1, 311 - 1};
+    private static final int[] coordsLAPLRC = {1229 + 1, 693 + 1};
+    private static final Rectangle section = new Rectangle(coordsLAPULC[0], coordsLAPULC[1],
+            coordsLAPLRC[0] - coordsLAPULC[0], coordsLAPLRC[1] - coordsLAPULC[1]);
 
     public static void solve(){
         for(int i = 3; i > 0; i--){
@@ -33,23 +36,26 @@ public class InputGame {
         } catch (AWTException e) {
             throw new RuntimeException(e);
         }
-        for(int j = 0; j < 40; j++){
+        for(int j = 0; j < 30; j++){
             a = new Grid(takeScreenshot());
             b = new DetSolve(a);
             a.print();
+            System.out.println("Screenshot:\t" + (j + 1));
             for(Move i : b.giveBestMoves()){
-                //System.out.println(i);
-                c.mouseMove(coordsULC[0] + 24*i.getX() + 12, coordsULC[1] + 24*i.getY() + 12);
+                System.out.println(i);
+                c.mouseMove(coordsLAPULC[0] + 24*i.getX() + 12, coordsLAPULC[1] + 24*i.getY() + 12);
                 if(i.shouldMark()){
                     c.mousePress(InputEvent.BUTTON3_DOWN_MASK);
+                    try { Thread.sleep(10); } catch (InterruptedException e) {}
                     c.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
                 } else {
                     c.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+                    try { Thread.sleep(10); } catch (InterruptedException e) {}
                     c.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
                 }
                 //a.print();
                 try {
-                    Thread.sleep(30);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -68,6 +74,23 @@ public class InputGame {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
+
+    public static void saveScreenshot(){
+        try {
+            for(int i = 3; i > 0; i--){
+                System.out.print("\rStarting in " + i);
+                Thread.sleep(1000);
+            }
+            System.out.print("\rStarted");
+            Robot awt_robot = new Robot(); // new Rectangle(Toolkit.getDefaultToolkit().getScreenSize())
+            BufferedImage game = awt_robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+            ImageIO.write(game, "PNG", new File("sample.png"));
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
