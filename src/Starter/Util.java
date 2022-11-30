@@ -8,15 +8,6 @@ import java.util.ArrayList;
 
 public class Util {
 
-
-    public static int RGBDistance(int[] a, int[] b){
-        int d = 0;
-        for(int i = 0; i < 3; i++){
-            d += (a[i] - b[i])*(a[i] - b[i]);
-        }
-        return d; // gibt das Quadrat zurück
-    }
-
     public static void test(int num){
         Grid g;
         int won = 0;
