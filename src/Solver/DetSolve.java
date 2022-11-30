@@ -341,22 +341,22 @@ public class DetSolve {
 
     private void guessCorners() {
         // top left
-        if (!this.grid.getField()[0][0].isRevealed()) {
+        if (!this.grid.getField()[0][0].isRevealed() && !this.grid.getField()[0][0].isMarked()) {
             this.moveStack.push(new Move(0, 0, false));
             return;
         }
         // top right
-        if (!this.grid.getField()[this.grid.getWidth() - 1][0].isRevealed()) {
+        if (!this.grid.getField()[this.grid.getWidth() - 1][0].isRevealed() && !this.grid.getField()[this.grid.getWidth() - 1][0].isMarked()) {
             this.moveStack.push(new Move(this.grid.getWidth() - 1, 0, false));
             return;
         }
         // bottom right
-        if (!this.grid.getField()[this.grid.getWidth() - 1][this.grid.getHeight() - 1].isRevealed()) {
+        if (!this.grid.getField()[this.grid.getWidth() - 1][this.grid.getHeight() - 1].isRevealed() && !this.grid.getField()[this.grid.getWidth() - 1][this.grid.getHeight() - 1].isMarked()) {
             this.moveStack.push(new Move(this.grid.getWidth() - 1, this.grid.getHeight() - 1, false));
             return;
         }
         // bottom left
-        if (!this.grid.getField()[0][this.grid.getHeight() - 1].isRevealed()) {
+        if (!this.grid.getField()[0][this.grid.getHeight() - 1].isRevealed() && !this.grid.getField()[0][this.grid.getHeight() - 1].isMarked()) {
             this.moveStack.push(new Move(0, this.grid.getHeight() - 1, false));
         }
         this.allCornersOpen = true;
