@@ -352,32 +352,32 @@ public class Grid {
                 RGBCC[2] = curr & 0xFF;
                 //System.out.println(Integer.toHexString(curr));
                 //System.out.println("(" + RGBCC[0] + ", " + RGBCC[1] + ", " + RGBCC[2] + ")");
-                if(Util.RGBDistance(RGB11, Colour.REVEALED) < Colour.TOLERANCE){ // is revealed?
+                if(Colour.RGBDistance(RGB11, Colour.REVEALED) < Colour.TOLERANCE){ // is revealed?
                     this.field[x][y].reveal();
                     this.revealed.add(this.field[x][y]);
-                    if(Util.RGBDistance(RGBCC, Colour.ONE) < Colour.TOLERANCE){
+                    if(Colour.RGBDistance(RGBCC, Colour.ONE) < Colour.TOLERANCE){
                         this.field[x][y].setCount(1);
-                    } else if(Util.RGBDistance(RGBCC, Colour.TWO) < Colour.TOLERANCE){
+                    } else if(Colour.RGBDistance(RGBCC, Colour.TWO) < Colour.TOLERANCE){
                         this.field[x][y].setCount(2);
-                    } else if(Util.RGBDistance(RGBCC, Colour.THREE) < Colour.TOLERANCE){
+                    } else if(Colour.RGBDistance(RGBCC, Colour.THREE) < Colour.TOLERANCE){
                         this.field[x][y].setCount(3);
-                    } else if(Util.RGBDistance(RGBCC, Colour.FOUR) < Colour.TOLERANCE){
+                    } else if(Colour.RGBDistance(RGBCC, Colour.FOUR) < Colour.TOLERANCE){
                         this.field[x][y].setCount(4);
-                    } else if(Util.RGBDistance(RGBCC, Colour.FIVE) < Colour.TOLERANCE){
+                    } else if(Colour.RGBDistance(RGBCC, Colour.FIVE) < Colour.TOLERANCE){
                         this.field[x][y].setCount(5);
-                    } else if(Util.RGBDistance(RGBCC, Colour.SIX) < Colour.TOLERANCE){
+                    } else if(Colour.RGBDistance(RGBCC, Colour.SIX) < Colour.TOLERANCE){
                         this.field[x][y].setCount(6);
-                    } else if(Util.RGBDistance(RGBCC, Colour.SEVEN) < Colour.TOLERANCE){
+                    } else if(Colour.RGBDistance(RGBCC, Colour.SEVEN) < Colour.TOLERANCE){
                         this.field[x][y].setCount(7);
-                    } else if(Util.RGBDistance(RGBCC, Colour.EIGTH) < Colour.TOLERANCE){
+                    } else if(Colour.RGBDistance(RGBCC, Colour.EIGTH) < Colour.TOLERANCE){
                         this.field[x][y].setCount(8);
-                        System.out.println("(" + RGBCC[0] + ", " + RGBCC[1] + ", " + RGBCC[2] + ")");
                     } else {
                         this.field[x][y].setCount(0);
                     }
-                } else if(Util.RGBDistance(RGB11, Colour.UNREVEALED) < Colour.TOLERANCE){ // is unrevealed?
-                    if(Util.RGBDistance(RGBCC, Colour.MARKED) < Colour.TOLERANCE){ // is marked?
+                } else if(Colour.RGBDistance(RGB11, Colour.UNREVEALED) < Colour.TOLERANCE){ // is unrevealed?
+                    if(Colour.RGBDistance(RGBCC, Colour.MARKED) < Colour.TOLERANCE){ // is marked?
                         this.field[x][y].changeMarked();
+                        this.markedBombCount++;
                     }
                 }
             }
