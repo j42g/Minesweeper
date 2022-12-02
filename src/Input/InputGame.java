@@ -36,14 +36,17 @@ public class InputGame {
         } catch (AWTException e) {
             throw new RuntimeException(e);
         }
-        for(int j = 0; j < 40; j++){
+        for(int j = 0; j < 70; j++){
             a = new Grid(takeScreenshot());
+            if(a.getRemainingBombCount() == 0){
+                break;
+            }
             b = new DetSolve(a);
             a.print();
             System.out.println("Screenshot:\t" + (j + 1));
             for(Move i : b.giveBestMoves()){
                 //System.out.println(i);
-                c.mouseMove(coordsULC[0] + 24*i.getX() + 12, coordsULC[1] + 24*i.getY() + 12);
+                c.mouseMove(coordsLAPULC[0] + 24*i.getX() + 12, coordsLAPULC[1] + 24*i.getY() + 12);
                 if(i.shouldMark()){
                     c.mousePress(InputEvent.BUTTON3_DOWN_MASK);
                     c.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
@@ -53,13 +56,26 @@ public class InputGame {
                 }
                 //a.print();
                 try {
-                    Thread.sleep(30);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
+    }
 
+    public static void bestMoves(){
+        Grid a = new Grid(takeScreenshot());
+        a.print();
+        DetSolve b = new DetSolve(a);
+        for(Move i : b.giveBestMoves()){
+            System.out.println(i);
+        }
     }
 
 
@@ -88,7 +104,5 @@ public class InputGame {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
     }
 }
