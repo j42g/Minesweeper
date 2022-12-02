@@ -174,8 +174,9 @@ public class DetSolve {
         boolean foundSolution = false;
         int[] p;
         double bestP = 0;
+        int minBombsEdgeUnrevealed = Integer.MAX_VALUE;
         Move bestMove = null;
-        //Util.printEqns(a, b);
+        Util.printEqns(a, b);
         for (ArrayList<Integer> sec : sections) {
             //System.out.println(sec);
             this.allCurrSolutions.clear();
@@ -193,11 +194,18 @@ public class DetSolve {
             this.guessSolutions(currA, currB, currXi, 0);
             //Util.printEqns(currA, currB);
             //Util.printSolutions(this.allCurrSolutions);
+            /*if(this.allCurrSolutions.size() > 1000000){
+                System.out.println(this.allCurrSolutions.size());
+                this.grid.print();
+            }*/
             OR = new BigInteger("0");
             AND = this.allCurrSolutions.get(0); // so its not 000000...
             for (BigInteger currSolution : this.allCurrSolutions) { // AND and OR
                 AND = AND.and(currSolution);
                 OR = OR.or(currSolution);
+                if(currSolution.bitCount() < minBombsEdgeUnrevealed){
+                    minBombsEdgeUnrevealed = currSolution.bitCount();
+                }
             }
             for (int i = 0; i < currXi.length; i++) { // check if solution is found
                 if (AND.testBit(i)) {
@@ -218,16 +226,25 @@ public class DetSolve {
                         p[i]++;
                     }
                 }
-                if (p[i] / ( (double) p.length) > bestP) {
-                    bestP = p[i] / ( (double) p.length);
+                if (p[i] / ( (double) this.allCurrSolutions.size()) > bestP) {
+                    bestP = p[i] / ( (double) this.allCurrSolutions.size());
+                    //System.out.println("bestP:\t" + bestP);
                     bestMove = new Move(edgeUnrevealed.get(secVars.get(i)), false);
                 }
-                //Util.printArr(p);
             }
+            //Util.printArr(p);
         }
-        if (!foundSolution && bestMove != null && this.allCornersOpen) { // have to guess
-            //System.out.println("PUSHED GUESSED: " + bestMove);
-            this.pushMove(bestMove);
+        if (!foundSolution && bestMove != null) { // have to guess
+            if(allCornersOpen){
+                this.pushMove(bestMove);
+                //System.out.println("PUSHED GUESSED: " + bestMove);
+            } else {
+                double nonEdgeGuess = 1 - minBombsEdgeUnrevealed / ((double)this.grid.getRemainingUnrevealedCount() - edgeUnrevealed.size());
+                if(nonEdgeGuess < bestP){
+                    this.pushMove(bestMove);
+                    //System.out.println("PUSHED GUESSED OVER CORNER: " + bestMove);
+                }
+            }
         }
     }
 
@@ -370,9 +387,10 @@ public class DetSolve {
 
     private void moveHandle() {
         while (!this.moveStack.empty()) {
+            //System.out.println(this.moveStack.peek());
             this.grid.move(this.moveStack.pop());
         }
-        //this.grid.print();
+        this.grid.print();
         //try { Thread.sleep(2000); } catch (Exception e) {}
     }
 }
