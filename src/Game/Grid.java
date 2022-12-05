@@ -1,7 +1,6 @@
 package Game;
 
 import java.awt.image.BufferedImage;
-import java.sql.SQLOutput;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -139,13 +138,13 @@ public class Grid {
         this.print();
     }
 
-    public Grid(BufferedImage game){
+    public Grid(int width, int height, int totalBombs, BufferedImage game){
         //System.out.println("Maybe Width:\t" + game.getWidth() / 23);
         //System.out.println("Maybe Height:\t" + game.getHeight() / 23);
-        this.width = 30;
-        this.height = 16;
+        this.width = width;
+        this.height = height;
         this.totalSquares = this.width * this.height;
-        this.totalBombs = 99;
+        this.totalBombs = totalBombs;
         this.markedBombCount = 0;
         this.lost = false;
         this.won = false;
@@ -172,7 +171,7 @@ public class Grid {
             }
             System.out.print("Reveal=0 or Mark=1?");
             m = s.nextInt();
-            this.move(new Move(x, y, (m == 1)));
+            this.move(new Move(x, y, (m == 1), -1));
         }
         System.out.println("You lost.");
     }
@@ -369,7 +368,7 @@ public class Grid {
                         this.field[x][y].setCount(6);
                     } else if(Colour.RGBDistance(RGBCC, Colour.SEVEN) < Colour.TOLERANCE){
                         this.field[x][y].setCount(7);
-                    } else if(Colour.RGBDistance(RGBCC, Colour.EIGTH) < Colour.TOLERANCE){
+                    } else if(Colour.RGBDistance(RGBCC, Colour.EIGHT) < Colour.TOLERANCE){
                         this.field[x][y].setCount(8);
                     } else {
                         this.field[x][y].setCount(0);
