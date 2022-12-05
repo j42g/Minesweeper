@@ -15,7 +15,7 @@ public class Colour {
     public static int[] FIVE       = new int[]{128, 0, 0}; // 12, 12 RGB
     public static int[] SIX        = new int[]{0, 128, 128}; // 12, 12 RGB
     public static int[] SEVEN      = new int[]{0, 0, 0}; // 12, 12 RGB
-    public static int[] EIGTH      = new int[]{128, 128, 128}; // 12, 12 RGB
+    public static int[] EIGHT      = new int[]{128, 128, 128}; // 12, 12 RGB
 
     public static int RGBDistance(int[] a, int[] b){
         int d = 0;
