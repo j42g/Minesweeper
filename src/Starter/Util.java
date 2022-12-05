@@ -13,7 +13,7 @@ public class Util {
         int won = 0;
         long t1 = System.nanoTime();
         for(int i = 0; i < num; i++){
-            g = new Grid('e');
+            g = new Grid('h');
             DetSolve s = new DetSolve(g);
             if(s.start()){
                 won++;
@@ -23,7 +23,7 @@ public class Util {
             }
             //System.out.println("Finished:" + (i+1));
         }
-        System.out.println("\rPlayed:\t" + num + ",\tWon:\t" + won + ",\t%:\t" + ((100d * won) / num) + "%,\tAvg Time:\t" + (System.nanoTime() - t1)/(100000000d*num) + "s");
+        System.out.println("\rPlayed:\t" + num + ",\tWon:\t" + won + ",\t%:\t" + ((100d * won) / num) + "%,\tAvg Time:\t" + (System.nanoTime() - t1)/(1000000000d*num) + "s");
     }
 
     public static String toNum(int n, int space) {
