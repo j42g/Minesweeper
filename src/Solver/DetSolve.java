@@ -15,6 +15,7 @@ public class DetSolve {
     private final Grid grid;
     private final ArrayList<BigInteger> allCurrSolutions;
     private final Stack<Move> moveStack;
+    private Move lastMove;
     private boolean allCornersOpen;
 
     public DetSolve(Grid g) {
@@ -71,6 +72,21 @@ public class DetSolve {
         return this.moveStack;
     }
 
+    public Iterable<Move> giveBestMovesEqOnly(){
+        this.equationSolution();
+        if (!this.moveStack.empty()) {
+            return this.moveStack;
+        }
+        if(!this.allCornersOpen){
+            this.guessCorners();
+        }
+        if (this.moveStack.empty()) { // alle ecken wurden revealed
+            this.allCornersOpen = true;
+            this.equationSolution();
+        }
+        return this.moveStack;
+    }
+
     private void simpleRules() {
         int markedCount;
         ArrayList<Tile> cleanNeighbours = new ArrayList<Tile>(); // clean means unmarked und revealed
@@ -94,12 +110,12 @@ public class DetSolve {
             // actual cases
             if (currTile.getCount() == cleanNeighbours.size() + markedCount) { // all neighbours are bombs
                 for(Tile neighbour : cleanNeighbours){
-                    this.pushMove(new Move(neighbour, true));
+                    this.pushMove(new Move(neighbour, true, 0));
                 }
             }
             if (currTile.getCount() == markedCount) { // all neighbours are NOT bombs
                 for(Tile neighbour : cleanNeighbours){
-                    this.pushMove(new Move(neighbour, false));
+                    this.pushMove(new Move(neighbour, false, 1));
                 }
             }
         }
@@ -146,7 +162,7 @@ public class DetSolve {
         }
         if (a.length == 0) { // check if empty
             if(this.grid.getRemainingBombCount() == this.grid.getRemainingUnrevealedCount()){ // all remaining tiles are bombs
-                this.handleWeirdCase(true);
+                this.handleWeirdCase();
             } else if (this.allCornersOpen) {
                 this.trulyRandom();
             }
@@ -173,10 +189,11 @@ public class DetSolve {
         BigInteger OR;
         boolean foundSolution = false;
         int[] p;
-        double bestP = 0;
+        double tempP;
+        double currP = 0;
         int minBombsEdgeUnrevealed = Integer.MAX_VALUE;
         Move bestMove = null;
-        Util.printEqns(a, b);
+        //Util.printEqns(a, b);
         for (ArrayList<Integer> sec : sections) {
             //System.out.println(sec);
             this.allCurrSolutions.clear();
@@ -209,27 +226,28 @@ public class DetSolve {
             }
             for (int i = 0; i < currXi.length; i++) { // check if solution is found
                 if (AND.testBit(i)) {
-                    this.pushMove(new Move(edgeUnrevealed.get(secVars.get(i)), true));
+                    this.pushMove(new Move(edgeUnrevealed.get(secVars.get(i)), true, 0));
                     //System.out.println("PUSHED EQ: " + this.moveStack.peek());
                     foundSolution = true;
                 }
                 if (!OR.testBit(i)) {
-                    this.pushMove(new Move(edgeUnrevealed.get(secVars.get(i)), false));
+                    this.pushMove(new Move(edgeUnrevealed.get(secVars.get(i)), false, 1));
                     //System.out.println("PUSHED EQ: " + this.moveStack.peek());
                     foundSolution = true;
                 }
             }
-            p = new int[currXi.length];
+            p = new int[currXi.length]; // FROM HERE ON ITS PROB
             for (int i = 0; i < p.length; i++) {
                 for (BigInteger currSolution : this.allCurrSolutions) {
                     if (!currSolution.testBit(i)) {
                         p[i]++;
                     }
                 }
-                if (p[i] / ( (double) this.allCurrSolutions.size()) > bestP) {
-                    bestP = p[i] / ( (double) this.allCurrSolutions.size());
-                    //System.out.println("bestP:\t" + bestP);
-                    bestMove = new Move(edgeUnrevealed.get(secVars.get(i)), false);
+                tempP = p[i] / ( (double) this.allCurrSolutions.size());
+                if (tempP > currP) { // p + revNeighbour
+                    currP = tempP;
+                    //System.out.println("currP:\t" + currP);
+                    bestMove = new Move(edgeUnrevealed.get(secVars.get(i)), false, currP);
                 }
             }
             //Util.printArr(p);
@@ -240,7 +258,7 @@ public class DetSolve {
                 //System.out.println("PUSHED GUESSED: " + bestMove);
             } else {
                 double nonEdgeGuess = 1 - minBombsEdgeUnrevealed / ((double)this.grid.getRemainingUnrevealedCount() - edgeUnrevealed.size());
-                if(nonEdgeGuess < bestP){
+                if(nonEdgeGuess < currP){
                     this.pushMove(bestMove);
                     //System.out.println("PUSHED GUESSED OVER CORNER: " + bestMove);
                 }
@@ -334,11 +352,11 @@ public class DetSolve {
         return sum == bi;
     }
 
-    private void handleWeirdCase(boolean areBombs){
+    private void handleWeirdCase(){
         for(int x = 0; x < this.grid.getWidth(); x++){
             for(int y = 0; y < this.grid.getHeight(); y++){
                 if(!this.grid.getField()[x][y].isRevealed()){
-                    this.moveStack.push(new Move(x, y, areBombs));
+                    this.moveStack.push(new Move(x, y, true, 0));
                 }
             }
         }
@@ -346,35 +364,35 @@ public class DetSolve {
 
     private void trulyRandom(){
         ArrayList<Tile> unrevealed = new ArrayList<Tile>();
-        for(int x = 0; x < this.grid.getWidth(); x++){
-            for(int y = 0; y < this.grid.getHeight(); y++){
-                if(!this.grid.getField()[x][y].isRevealed()){
-                    unrevealed.add(this.grid.getField()[x][y]);
+        for(int x = 0; x < grid.getWidth(); x++){
+            for(int y = 0; y < grid.getHeight(); y++){
+                if(!grid.getField()[x][y].isRevealed() && !grid.getField()[x][y].isMarked()){
+                    unrevealed.add(grid.getField()[x][y]);
                 }
             }
         }
-        this.moveStack.push(new Move(unrevealed.get((int)(Math.random()*unrevealed.size())), false));
+        moveStack.push(new Move(unrevealed.get((int)(Math.random()*unrevealed.size())), false, 1 - grid.getRemainingBombCount() / ( (double)grid.getRemainingUnrevealedCount())));
     }
 
     private void guessCorners() {
         // top left
         if (!this.grid.getField()[0][0].isRevealed() && !this.grid.getField()[0][0].isMarked()) {
-            this.moveStack.push(new Move(0, 0, false));
+            this.moveStack.push(new Move(0, 0, false, 1 - grid.getRemainingBombCount() / ( (double)grid.getRemainingUnrevealedCount())));
             return;
         }
         // top right
         if (!this.grid.getField()[this.grid.getWidth() - 1][0].isRevealed() && !this.grid.getField()[this.grid.getWidth() - 1][0].isMarked()) {
-            this.moveStack.push(new Move(this.grid.getWidth() - 1, 0, false));
+            this.moveStack.push(new Move(this.grid.getWidth() - 1, 0, false, 1 - grid.getRemainingBombCount() / ( (double)grid.getRemainingUnrevealedCount())));
             return;
         }
         // bottom right
         if (!this.grid.getField()[this.grid.getWidth() - 1][this.grid.getHeight() - 1].isRevealed() && !this.grid.getField()[this.grid.getWidth() - 1][this.grid.getHeight() - 1].isMarked()) {
-            this.moveStack.push(new Move(this.grid.getWidth() - 1, this.grid.getHeight() - 1, false));
+            this.moveStack.push(new Move(this.grid.getWidth() - 1, this.grid.getHeight() - 1, false, 1 - grid.getRemainingBombCount() / ( (double)grid.getRemainingUnrevealedCount())));
             return;
         }
         // bottom left
         if (!this.grid.getField()[0][this.grid.getHeight() - 1].isRevealed() && !this.grid.getField()[0][this.grid.getHeight() - 1].isMarked()) {
-            this.moveStack.push(new Move(0, this.grid.getHeight() - 1, false));
+            this.moveStack.push(new Move(0, this.grid.getHeight() - 1, false, 1 - grid.getRemainingBombCount() / ( (double)grid.getRemainingUnrevealedCount())));
         }
         this.allCornersOpen = true;
     }
@@ -388,9 +406,10 @@ public class DetSolve {
     private void moveHandle() {
         while (!this.moveStack.empty()) {
             //System.out.println(this.moveStack.peek());
+            lastMove = this.moveStack.peek();
             this.grid.move(this.moveStack.pop());
         }
-        this.grid.print();
+        //this.grid.print();
         //try { Thread.sleep(2000); } catch (Exception e) {}
     }
 }
