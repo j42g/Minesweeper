@@ -5,21 +5,24 @@ public class Move {
     private final int x;
     private final int y;
     private final boolean mark;
+    private final double probSafe;
 
-    public Move(int x, int y, boolean mark){
+    public Move(int x, int y, boolean mark, double probSafe){
         this.x = x;
         this.y = y;
         this.mark = mark;
+        this.probSafe = probSafe;
     }
 
-    public Move(Tile a, boolean mark){
+    public Move(Tile a, boolean mark, double probSafe){
         this.x = a.getX();
         this.y = a.getY();
         this.mark = mark;
+        this.probSafe = probSafe;
     }
 
-    public Move(int x, int y){
-        this(x, y, false);
+    public Move(int x, int y, double probSafe){
+        this(x, y, false, probSafe);
     }
 
     public int getX(){
@@ -45,7 +48,7 @@ public class Move {
 
     @Override
     public String toString(){
-        return "(" + this.x + ", " + this.y + ", " + this.mark + ")";
+        return "(" + this.x + ", " + this.y + ", " + this.mark + ", " + this.probSafe + ")";
     }
 
 }
