@@ -53,7 +53,7 @@ public class DetSolve {
         return this.grid.isWon();
     }
 
-    public Iterable<Move> giveBestMoves(){
+    public Stack<Move> giveBestMoves(){
         this.simpleRules();
         if (!this.moveStack.empty()) {
             return this.moveStack;
@@ -72,7 +72,7 @@ public class DetSolve {
         return this.moveStack;
     }
 
-    public Iterable<Move> giveBestMovesEqOnly(){
+    public Stack<Move> giveBestMovesEqOnly(){
         this.equationSolution();
         if (!this.moveStack.empty()) {
             return this.moveStack;
@@ -355,7 +355,7 @@ public class DetSolve {
     private void handleWeirdCase(){
         for(int x = 0; x < this.grid.getWidth(); x++){
             for(int y = 0; y < this.grid.getHeight(); y++){
-                if(!this.grid.getField()[x][y].isRevealed()){
+                if(!this.grid.getField()[x][y].isRevealed() && !this.grid.getField()[x][y].isMarked()){
                     this.moveStack.push(new Move(x, y, true, 0));
                 }
             }
