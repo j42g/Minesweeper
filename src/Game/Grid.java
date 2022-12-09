@@ -42,8 +42,8 @@ public class Grid {
     public Grid(char d) {
         switch (d) {
             case 'e':
-                this.width = 8;
-                this.height = 8;
+                this.width = 9;
+                this.height = 9;
                 this.totalBombs = 10;
                 break;
             case 'm':
@@ -138,7 +138,7 @@ public class Grid {
         this.print();
     }
 
-    public Grid(int width, int height, int totalBombs, BufferedImage game){
+    public Grid(int width, int height, int totalBombs, int squareLen, BufferedImage game){
         //System.out.println("Maybe Width:\t" + game.getWidth() / 23);
         //System.out.println("Maybe Height:\t" + game.getHeight() / 23);
         this.width = width;
@@ -150,7 +150,7 @@ public class Grid {
         this.won = false;
         this.firstMove = true;
         this.revealed = new ArrayList<Tile>();
-        this.generateField(game);
+        this.generateField(squareLen, game);
     }
 
     public void consoleGame() { // main gameloop
@@ -188,6 +188,7 @@ public class Grid {
             } else {
                 this.markedBombCount--;
             }
+            return MOVE_VALID;
         } else { // wanne click the tile
             if(this.firstMove){ // first move
                 this.firstMove = false;
@@ -203,12 +204,11 @@ public class Grid {
             if (curr.isRevealed()) { // already revealed
                 return MOVE_INVALID;
             }
-            this.revealSection(curr);
-            return MOVE_VALID;
-        }
-        if(this.checkIfSolved()) {
-            return MOVE_WON;
-        } else {
+            this.revealSection(curr); // valid move
+            if(this.checkIfSolved()) { // check if won
+                this.won = true;
+                return MOVE_WON;
+            }
             return MOVE_VALID;
         }
     }
@@ -233,17 +233,7 @@ public class Grid {
     }
 
     private boolean checkIfSolved() {
-        Tile curr;
-        for (int x = 0; x < this.width; x++) {
-            for (int y = 0; y < this.height; y++) {
-                curr = this.field[x][y];
-                if (curr.isBomb() ^ curr.isMarked()) {
-                    return false;
-                }
-            }
-        }
-        this.won = true;
-        return true;
+        return revealed.size() + totalBombs == totalSquares;
     }
 
     private void handleFirstMove(int x, int y) {
@@ -298,7 +288,7 @@ public class Grid {
         }
     }
 
-    private void generateField(BufferedImage game) {
+    private void generateField(int squareLen, BufferedImage game) {
         // fill
         int remainingBombs = this.totalBombs;
         int remainingSquares = this.totalSquares;
@@ -340,12 +330,12 @@ public class Grid {
         for(int y = 0; y < this.height; y++){
             for(int x = 0; x < this.width; x++){
                 // 1, 1
-                curr = game.getRGB(1 + x*24, 1 + y*24);
+                curr = game.getRGB(1 + x*squareLen, 1 + y*squareLen);
                 RGB11[0] = (curr >> 16) & 0xFF;
                 RGB11[1] = (curr >> 8) & 0xFF;
                 RGB11[2] = curr & 0xFF;
                 // 12, 12
-                curr = game.getRGB(13 + x*24, 13 + y*24);
+                curr = game.getRGB((squareLen / 2 + 1) + x*squareLen, (squareLen / 2 + 1) + y*squareLen);
                 RGBCC[0] = (curr >> 16) & 0xFF;
                 RGBCC[1] = (curr >> 8) & 0xFF;
                 RGBCC[2] = curr & 0xFF;
@@ -491,5 +481,44 @@ public class Grid {
         }
         System.out.print("\n");
 
+    }
+
+    public String toString(){
+        StringBuilder board = new StringBuilder();
+        board.append("Remaining Bombs:\t")
+                .append(this.totalBombs - this.markedBombCount)
+                .append("\tUnrevealed Tiles:\t")
+                .append(this.totalSquares - this.revealed.size() - this.markedBombCount)
+                .append("\n");
+        // Rand
+        board.append("---");
+        for (int x = 0; x < this.width; x++) {
+            board.append("-")
+                    .append(Util.toNum(x + 1, 2))
+                    .append("-");
+        }
+        board.append("-\n");
+        // Grid
+        for (int y = 0; y < this.height; y++) {
+            board.append(Util.toNum(y + 1, 2)) // Rand
+                    .append("|");
+            for (int x = 0; x < this.width; x++) {
+                if (field[x][y].isMarked()) {
+                    board.append("  M ");
+                    continue;
+                }
+                if (!field[x][y].isRevealed()) {
+                    board.append("    ");
+                    continue;
+                }
+                board.append(" ")
+                        .append(Util.toNum(field[x][y].getCount(), 2))
+                        .append(" ");
+            }
+            board.append("|\n"); // Rand + Zeilenumsprung
+        }
+        // Rand
+        board.append("-".repeat(Math.max(0, this.width * 4 + 4)));
+        return board.toString();
     }
 }
