@@ -1,11 +1,11 @@
-package Game;
+package game;
 
 import java.awt.image.BufferedImage;
 import java.util.Scanner;
 import java.util.ArrayList;
 
-import Input.Colour;
-import Starter.Util;
+import input.Colour;
+import starter.Util;
 
 public class Grid {
 
@@ -41,25 +41,26 @@ public class Grid {
 
     public Grid(char d) {
         switch (d) {
-            case 'e':
+            case 'e' -> {
                 this.width = 9;
                 this.height = 9;
                 this.totalBombs = 10;
-                break;
-            case 'm':
+            }
+            case 'm' -> {
                 this.width = 16;
                 this.height = 16;
                 this.totalBombs = 40;
-                break;
-            case 'h':
+            }
+            case 'h' -> {
                 this.width = 30;
                 this.height = 16;
                 this.totalBombs = 99;
-                break;
-            default:
+            }
+            default -> {
                 this.width = 10;
                 this.height = 10;
                 this.totalBombs = 16;
+            }
         }
         this.markedBombCount = 0;
         this.totalSquares = this.width * this.height;
@@ -290,8 +291,6 @@ public class Grid {
 
     private void generateField(int squareLen, BufferedImage game) {
         // fill
-        int remainingBombs = this.totalBombs;
-        int remainingSquares = this.totalSquares;
         this.field = new Tile[this.width][this.height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {

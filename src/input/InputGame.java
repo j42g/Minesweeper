@@ -1,8 +1,8 @@
-package Input;
+package input;
 
-import Game.Grid;
-import Game.Move;
-import Solver.DetSolve;
+import game.Grid;
+import game.Move;
+import solver.DetSolve;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -64,7 +64,7 @@ public class InputGame {
                 }
                 click(c, i);
                 //a.print();
-                if(shouldStop(a) && false){
+                if(shouldStop(a) && false){ // change if one wants different behaviour
                     return;
                 }
                 try {

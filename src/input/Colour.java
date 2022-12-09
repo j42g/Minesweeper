@@ -1,4 +1,4 @@
-package Input;
+package input;
 
 public class Colour {
 

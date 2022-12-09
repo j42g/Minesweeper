@@ -1,14 +1,13 @@
-package Solver;
+package solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
 
-import Game.Grid;
-import Game.Move;
-import Game.Tile;
-import Starter.Util;
+import game.Grid;
+import game.Move;
+import game.Tile;
 
 public class DetSolve {
     

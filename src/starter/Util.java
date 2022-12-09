@@ -1,7 +1,7 @@
-package Starter;
+package starter;
 
-import Game.Grid;
-import Solver.DetSolve;
+import game.Grid;
+import solver.DetSolve;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
